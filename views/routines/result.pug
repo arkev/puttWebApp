@@ -1,0 +1,7 @@
+extends ../layout
+
+block content
+  h2 Resultados guardados
+  p ¿Deseas repetir la rutina?
+  a(href=`/routines/${routine.id}/start`) Repetir
+  a(href='/') Salir

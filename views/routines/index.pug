@@ -1,0 +1,12 @@
+extends ../layout
+
+block content
+  h2 Rutinas
+  a(href='/routines/new') Crear rutina
+  if routines.length
+    ul
+      each routine in routines
+        li
+          a(href=`/routines/${routine.id}/start`) #{routine.name}
+  else
+    p No hay rutinas registradas.

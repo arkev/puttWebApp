@@ -1,0 +1,21 @@
+extends ../layout
+
+block content
+  h2 Comparar discos
+  if discs.length >= 2
+    table
+      thead
+        tr
+          th Disco
+          th C1 (aciertos/intent)
+          th C2 (aciertos/intent)
+      tbody
+        each disc in discs
+          - var s = stats[disc.id] || {circle1:{hits:0,attempts:0},circle2:{hits:0,attempts:0}}
+          tr
+            td #{disc.brand} #{disc.model}
+            td #{s.circle1.hits} / #{s.circle1.attempts}
+            td #{s.circle2.hits} / #{s.circle2.attempts}
+  else
+    p Selecciona al menos dos discos para comparar.
+  a(href='/discs') Volver
