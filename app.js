@@ -1,19 +1,28 @@
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
-const { LowSync, JSONFileSync } = require('lowdb');
+const { LowSync } = require('lowdb');
+const { JSONFileSync } = require('lowdb/node');
 const { v4: uuidv4 } = require('uuid');
 const lessMiddleware = require('less-middleware');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 // Database setup
-const file = path.join(__dirname, 'data', 'db.json');
+const file = path.resolve(__dirname, 'db.json');
 const adapter = new JSONFileSync(file);
 const db = new LowSync(adapter);
 db.read();
-db.data ||= { discs: [], routines: [], stats: { circle1: { hits: 0, attempts: 0 }, circle2: { hits: 0, attempts: 0 } }, discStats: {} };
+db.data ||= {
+  discs: [],
+  routines: [],
+  stats: {
+    circle1: { hits: 0, attempts: 0 },
+    circle2: { hits: 0, attempts: 0 }
+  },
+  discStats: {}
+};
 db.write();
 
 // Middleware
@@ -151,6 +160,6 @@ app.get('/stats', (req, res) => {
   res.render('stats/index', { stats: db.data.stats });
 });
 
-app.listen(port, () => {
-  console.log(`Servidor corriendo en puerto ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
