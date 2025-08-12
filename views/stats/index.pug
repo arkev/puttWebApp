@@ -1,0 +1,9 @@
+extends ../layout
+
+block content
+  h2 Estadísticas generales
+  if stats
+    p Círculo 1: #{stats.circle1.hits} / #{stats.circle1.attempts}
+    p Círculo 2: #{stats.circle2.hits} / #{stats.circle2.attempts}
+  else
+    p Sin datos aún.

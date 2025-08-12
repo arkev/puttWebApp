@@ -1,0 +1,16 @@
+extends ../layout
+
+block content
+  h2 Catálogo de discos
+  a(href='/discs/new') Agregar disco
+  if discs.length
+    form(action='/discs/compare' method='get')
+      ul
+        each disc in discs
+          li
+            label
+              input(type='checkbox' name='ids' value=disc.id)
+              a(href=`/discs/${disc.id}`) #{disc.brand} #{disc.model} (#{disc.plastic})
+      button(type='submit') Comparar seleccionados
+  else
+    p No hay discos registrados.
