@@ -2,8 +2,14 @@
   "discs": [],
   "routines": [],
   "stats": {
-    "circle1": { "hits": 0, "attempts": 0 },
-    "circle2": { "hits": 0, "attempts": 0 }
+    "circle1": {
+      "hits": 0,
+      "attempts": 0
+    },
+    "circle2": {
+      "hits": 0,
+      "attempts": 0
+    }
   },
   "discStats": {}
 }

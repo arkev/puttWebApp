@@ -1,8 +1,8 @@
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
-const { LowSync } = require('lowdb');
-const { JSONFileSync } = require('lowdb/node');
+const { Low } = require('lowdb');
+const { JSONFile } = require('lowdb/node');
 const { v4: uuidv4 } = require('uuid');
 const lessMiddleware = require('less-middleware');
 
@@ -11,10 +11,10 @@ const PORT = process.env.PORT || 3000;
 
 // Database setup
 const file = path.resolve(__dirname, 'db.json');
-const adapter = new JSONFileSync(file);
-const db = new LowSync(adapter);
-db.read();
-db.data ||= {
+const adapter = new JSONFile(file);
+
+// >>> clave: define datos por defecto y pásalos al constructor
+const defaultData = {
   discs: [],
   routines: [],
   stats: {
@@ -23,7 +23,21 @@ db.data ||= {
   },
   discStats: {}
 };
-db.write();
+
+const db = new Low(adapter, defaultData);
+
+async function initDB() {
+  await db.read();
+  db.data ||= defaultData;   // por si el archivo está vacío o no existe
+  await db.write();
+}
+
+// Inicializar la base de datos antes de arrancar el servidor
+initDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+});
 
 // Middleware
 app.set('view engine', 'pug');
@@ -158,8 +172,4 @@ app.post('/routines/:id/complete', (req, res) => {
 // Stats
 app.get('/stats', (req, res) => {
   res.render('stats/index', { stats: db.data.stats });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
 });
