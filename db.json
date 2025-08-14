@@ -1,6 +1,27 @@
 {
-  "discs": [],
-  "routines": [],
+  "discs": [
+    {
+      "id": "fc1716ba-15bf-4a94-86e8-a91de059c296",
+      "brand": "innova",
+      "model": "Birdie",
+      "plastic": "DX",
+      "weight": "166",
+      "color": "Azul",
+      "flight": "1|2|0|0",
+      "image": "e3949fe8dec6a8d72377e3456b6a49a5"
+    }
+  ],
+  "routines": [
+    {
+      "id": "bcee9e25-86f5-413a-b4b8-2e1d916ea947",
+      "name": "Básica C1",
+      "stations": [
+        5,
+        7,
+        10
+      ]
+    }
+  ],
   "stats": {
     "circle1": {
       "hits": 0,

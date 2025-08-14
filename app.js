@@ -61,7 +61,15 @@ const upload = multer({ dest: path.join(__dirname, 'public', 'images') });
 
 // Routes
 app.get('/', (req, res) => {
-  res.render('index');
+  res.render('index', {
+    user: {
+      name: 'Jugador',
+      avatarUrl: null
+    },
+    lastRoutine: null,
+    kpis: { c1: 0, c2: 0, sessionsCount: 0 },
+    sessions: []
+  });
 });
 
 // Discs
@@ -173,3 +181,37 @@ app.post('/routines/:id/complete', (req, res) => {
 app.get('/stats', (req, res) => {
   res.render('stats/index', { stats: db.data.stats });
 });
+
+// Home
+app.get('/', (req, res) => {
+  const routines = db.data.routines || [];
+  const sessions = (db.data.sessions || []).slice(-5).reverse();
+
+  const lastRoutine = routines[routines.length - 1] || null;
+
+  const c1 = db.data.stats?.circle1 || { hits: 0, attempts: 0 };
+  const c2 = db.data.stats?.circle2 || { hits: 0, attempts: 0 };
+  const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
+
+  res.render('home', {
+    user: { name: 'Kev', avatarUrl: '/images/avatar.png' },
+    lastRoutine,
+    kpis: {
+      c1: pct(c1.hits, c1.attempts),
+      c2: pct(c2.hits, c2.attempts),
+      sessionsCount: (db.data.sessions || []).length
+    },
+    sessions
+  });
+});
+
+// Botón central: Sesión
+app.get('/session', (req, res) => {
+  const routines = db.data.routines || [];
+  const lastRoutine = routines[routines.length - 1];
+  if (lastRoutine) {
+    return res.redirect(`/routines/${lastRoutine.id}/start?mode=total`);
+  }
+  return res.redirect('/routines/new');
+});
+

@@ -1,5 +1,78 @@
 extends layout
 
 block content
-  h1 Bienvenido a la app de práctica de putts
-  p Selecciona una opción del menú para comenzar.
+  .home
+    .header
+      .left
+        h1 PuttLab
+      .right
+        if user && user.avatarUrl
+          img.avatar(src=user.avatarUrl alt="avatar")
+      .saludo
+        .greet Hola, #{(user && user.name) ? user.name : 'Jugador'}
+        .subtle Tu práctica te espera
+
+    .hero
+      .cta-card
+        .top
+          .title Reanudar última rutina
+          if lastRoutine
+            .meta #{lastRoutine.name} · #{lastRoutine.stations.length} estaciones
+          else
+            .meta Aún no tienes rutinas
+        if lastRoutine
+          .stations
+            each d in lastRoutine.stations
+              .badge #{d} m
+          a.btn-primary(href=`/routines/${lastRoutine.id}/start?mode=total`) 
+            i.fa-solid.fa-play
+            |  Iniciar
+        else
+          a.btn-primary(href="/routines/new")
+            i.fa-solid.fa-plus
+            |  Crear rutina
+
+    .kpis
+      .kpi
+        .label C1 %
+        .value #{(kpis && typeof kpis.c1 !== 'undefined') ? kpis.c1 : 0}%
+      .kpi
+        .label C2 %
+        .value #{(kpis && typeof kpis.c2 !== 'undefined') ? kpis.c2 : 0}%
+      .kpi
+        .label Sesiones
+        .value #{(kpis && typeof kpis.sessionsCount !== 'undefined') ? kpis.sessionsCount : 0}
+
+    .section
+      .h2 Últimas sesiones
+      if Array.isArray(sessions) && sessions.length
+        .list
+          each s in sessions
+            - const totalA = (s.stations||[]).reduce((a,x)=>a+(x.attempts||0),0)
+            - const totalH = (s.stations||[]).reduce((a,x)=>a+(x.hits||0),0)
+            - const p = totalA ? Math.round((totalH/totalA)*100) : 0
+            .item
+              .left
+                .title= new Date(s.date).toLocaleDateString()
+                .meta= s.routineId ? 'Rutina' : (s.challengeId ? 'Challenge' : 'Sesión')
+              .right
+                .pill #{p}%
+      else
+        .empty No hay sesiones todavía.
+
+    // Barra inferior
+    .bottom-nav
+      a.nav-item(href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(href="/you")
+        i.fa-solid.fa-user
+        span Tú
