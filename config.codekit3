@@ -21,11 +21,11 @@
       "bF" : 0,
       "ft" : 64,
       "ma" : 0,
-      "mi" : 1,
-      "oA" : 0,
+      "mi" : 0,
+      "oA" : 1,
       "oAP" : "\/app-min.js",
-      "oF" : 0,
-      "sC" : 3,
+      "oF" : 1,
+      "sC" : 0,
       "tS" : 0
     },
     "\/db.json" : {
@@ -108,6 +108,18 @@
       "oF" : 0,
       "pg" : 0
     },
+    "\/public\/css\/css\/style.min.css" : {
+      "aP" : 1,
+      "bl" : 0,
+      "ci" : 0,
+      "co" : 0,
+      "ft" : 16,
+      "ma" : 0,
+      "oA" : 0,
+      "oAP" : "\/public\/css\/css\/style.min-min.css",
+      "oF" : 0,
+      "pg" : 0
+    },
     "\/public\/css\/style.css" : {
       "aP" : 1,
       "bl" : 0,
@@ -127,6 +139,19 @@
       "oA" : 0,
       "oAP" : "\/public\/css\/style.css.map",
       "oF" : 0
+    },
+    "\/public\/images\/avatar.png" : {
+      "ft" : 32768,
+      "iS" : 25043,
+      "oA" : 0,
+      "oAP" : "\/public\/images\/avatar.png",
+      "oF" : 0,
+      "oIPL" : 0,
+      "opt" : 0,
+      "oT" : 1,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
     },
     "\/public\/images\/e3949fe8dec6a8d72377e3456b6a49a5" : {
       "cB" : 0,

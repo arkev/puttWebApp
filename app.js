@@ -59,18 +59,22 @@ app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
 
 const upload = multer({ dest: path.join(__dirname, 'public', 'images') });
 
-// Routes
-app.get('/', (req, res) => {
-  res.render('index', {
-    user: {
-      name: 'Jugador',
-      avatarUrl: null
-    },
-    lastRoutine: null,
-    kpis: { c1: 0, c2: 0, sessionsCount: 0 },
-    sessions: []
-  });
+// User ID
+const cookieParser = require('cookie-parser');
+
+app.use(cookieParser());
+app.use((req, res, next) => {
+  if (!req.cookies.clientId) {
+    const id = uuidv4();
+    // httpOnly:false para poder usarlo del lado cliente si te hace falta
+    res.cookie('clientId', id, { httpOnly: false, maxAge: 1000*60*60*24*365 });
+    req.clientId = id;
+  } else {
+    req.clientId = req.cookies.clientId;
+  }
+  next();
 });
+
 
 // Discs
 app.get('/discs', (req, res) => {
@@ -182,10 +186,11 @@ app.get('/stats', (req, res) => {
   res.render('stats/index', { stats: db.data.stats });
 });
 
-// Home
+// Home (única)
 app.get('/', (req, res) => {
-  const routines = db.data.routines || [];
-  const sessions = (db.data.sessions || []).slice(-5).reverse();
+  const userId = req.clientId || 'local';
+  const routines = (db.data.routines || []).filter(r => r.userId === userId);
+  const sessions = (db.data.sessions || []).filter(s => s.userId === userId).slice(-5).reverse();
 
   const lastRoutine = routines[routines.length - 1] || null;
 
@@ -193,15 +198,16 @@ app.get('/', (req, res) => {
   const c2 = db.data.stats?.circle2 || { hits: 0, attempts: 0 };
   const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
 
-  res.render('home', {
+  res.render('index', {
     user: { name: 'Kev', avatarUrl: '/images/avatar.png' },
     lastRoutine,
     kpis: {
       c1: pct(c1.hits, c1.attempts),
       c2: pct(c2.hits, c2.attempts),
-      sessionsCount: (db.data.sessions || []).length
+      sessionsCount: sessions.length,
     },
-    sessions
+    sessions,
+    activeTab: 'home'
   });
 });
 
@@ -214,4 +220,3 @@ app.get('/session', (req, res) => {
   }
   return res.redirect('/routines/new');
 });
-
