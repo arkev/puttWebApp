@@ -2,7 +2,7 @@
   "discs": [
     {
       "id": "fc1716ba-15bf-4a94-86e8-a91de059c296",
-      "brand": "innova",
+      "brand": "Innova",
       "model": "Birdie",
       "plastic": "DX",
       "weight": "166",
@@ -80,7 +80,7 @@
     },
     {
       "id": "lonestar",
-      "name": "Lone Star"
+      "name": "Lone Star Disc"
     },
     {
       "id": "infinite",
@@ -105,6 +105,202 @@
     {
       "id": "mint",
       "name": "Mint Discs"
+    },
+    {
+      "id": "1080",
+      "name": "1080 Disc Golf"
+    },
+    {
+      "id": "3disc",
+      "name": "3 Disc Golf"
+    },
+    {
+      "id": "abc",
+      "name": "ABC Discs"
+    },
+    {
+      "id": "agl",
+      "name": "AGL Discs"
+    },
+    {
+      "id": "aerobie",
+      "name": "Aerobie"
+    },
+    {
+      "id": "alfadiscs",
+      "name": "Alfa Discs"
+    },
+    {
+      "id": "aquaflight",
+      "name": "AquaFlight"
+    },
+    {
+      "id": "arsenal",
+      "name": "Arsenal Discworks"
+    },
+    {
+      "id": "birdie",
+      "name": "Birdie Disc Golf Supply"
+    },
+    {
+      "id": "blackzombie",
+      "name": "Black Zombie"
+    },
+    {
+      "id": "ching",
+      "name": "Ching"
+    },
+    {
+      "id": "crosslap",
+      "name": "Crosslap"
+    },
+    {
+      "id": "daredevil",
+      "name": "Daredevil Discs"
+    },
+    {
+      "id": "disctroyer",
+      "name": "Disctroyer"
+    },
+    {
+      "id": "discwing",
+      "name": "Discwing"
+    },
+    {
+      "id": "divergent",
+      "name": "Divergent Discs"
+    },
+    {
+      "id": "elevation",
+      "name": "Elevation Disc Golf"
+    },
+    {
+      "id": "ev7",
+      "name": "EV-7"
+    },
+    {
+      "id": "finishline",
+      "name": "Finish Line"
+    },
+    {
+      "id": "fullturn",
+      "name": "Full Turn Discs"
+    },
+    {
+      "id": "galaxy",
+      "name": "Galaxy Disc Golf"
+    },
+    {
+      "id": "goliath",
+      "name": "Goliath Discs"
+    },
+    {
+      "id": "guru",
+      "name": "Guru Disc Golf"
+    },
+    {
+      "id": "hooligan",
+      "name": "Hooligan Discs"
+    },
+    {
+      "id": "hyzerbomb",
+      "name": "HyzerBomb"
+    },
+    {
+      "id": "launch",
+      "name": "Launch Disc Golf"
+    },
+    {
+      "id": "legacy",
+      "name": "Legacy Discs"
+    },
+    {
+      "id": "lightning",
+      "name": "Lightning Discs"
+    },
+    {
+      "id": "loft",
+      "name": "Loft Discs"
+    },
+    {
+      "id": "millennium",
+      "name": "Millennium"
+    },
+    {
+      "id": "obdiscs",
+      "name": "Obsidian Discs"
+    },
+    {
+      "id": "ozone",
+      "name": "Ozone Disc Golf"
+    },
+    {
+      "id": "prodiscus",
+      "name": "Prodiscus"
+    },
+    {
+      "id": "reptilian",
+      "name": "Reptilian Disc Golf"
+    },
+    {
+      "id": "remix",
+      "name": "Remix Disc Golf"
+    },
+    {
+      "id": "rpm",
+      "name": "RPM Discs"
+    },
+    {
+      "id": "skyquest",
+      "name": "Skyquest"
+    },
+    {
+      "id": "storm",
+      "name": "Storm Disc Golf"
+    },
+    {
+      "id": "sune",
+      "name": "Sune Sport"
+    },
+    {
+      "id": "terminalvelocity",
+      "name": "Terminal Velocity"
+    },
+    {
+      "id": "trashpanda",
+      "name": "Trash Panda"
+    },
+    {
+      "id": "ub",
+      "name": "UB Disc Golf"
+    },
+    {
+      "id": "vibram",
+      "name": "Vibram"
+    },
+    {
+      "id": "viking",
+      "name": "Viking Discs"
+    },
+    {
+      "id": "wild",
+      "name": "Wild Discs"
+    },
+    {
+      "id": "wingit",
+      "name": "Wing It Disc Golf"
+    },
+    {
+      "id": "xcom",
+      "name": "X-Com"
+    },
+    {
+      "id": "yikun",
+      "name": "Yikun"
+    },
+    {
+      "id": "zing",
+      "name": "Zing"
     }
   ]
 }

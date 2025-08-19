@@ -105,11 +105,7 @@ app.get('/discs', (req, res) => {
       },
     };
   });
-  res.render('discs/index', {
-    discs,
-    activeTab: 'discs',
-    user: { name: 'Kev', avatarUrl: '/images/avatar.png' },
-  });
+  res.render('discs/index', { discs, activeTab: 'discs' });
 });
 
 app.post('/discs/new', upload.single('image'), (req, res) => {

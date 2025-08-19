@@ -6,8 +6,8 @@ block content
       .left
         h1 Mis Discos
       .right
-        if user && user.avatarUrl
-          img.avatar(src=user.avatarUrl alt="avatar")
+        a.add-disc(href="/discs/new" aria-label="Agregar disco")
+          i.fa-solid.fa-plus
     if discs.length
       form(method="get" action="/discs/compare" id="compareForm")
         .grid
