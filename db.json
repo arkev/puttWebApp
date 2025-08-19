@@ -36,7 +36,7 @@
   "manufacturers": [
     {
       "id": "innova",
-      "name": "Innova"
+      "name": "Innova (Innova Champion Discs)"
     },
     {
       "id": "discraft",
@@ -60,19 +60,19 @@
     },
     {
       "id": "mvp",
-      "name": "MVP"
+      "name": "MVP Disc Sports"
     },
     {
       "id": "axiom",
-      "name": "Axiom"
+      "name": "Axiom Discs"
     },
     {
       "id": "streamline",
-      "name": "Streamline"
+      "name": "Streamline Discs"
     },
     {
       "id": "prodigy",
-      "name": "Prodigy"
+      "name": "Prodigy Disc"
     },
     {
       "id": "kastaplast",
@@ -88,7 +88,7 @@
     },
     {
       "id": "gateway",
-      "name": "Gateway"
+      "name": "Gateway Disc Sports"
     },
     {
       "id": "clash",
@@ -100,7 +100,7 @@
     },
     {
       "id": "dga",
-      "name": "DGA"
+      "name": "DGA (Disc Golf Association)"
     },
     {
       "id": "mint",
@@ -120,7 +120,7 @@
     },
     {
       "id": "agl",
-      "name": "AGL Discs"
+      "name": "Above Ground Level (AGL)"
     },
     {
       "id": "aerobie",
@@ -132,7 +132,7 @@
     },
     {
       "id": "aquaflight",
-      "name": "AquaFlight"
+      "name": "AquaFlight Discs"
     },
     {
       "id": "arsenal",
@@ -140,15 +140,15 @@
     },
     {
       "id": "birdie",
-      "name": "Birdie Disc Golf Supply"
+      "name": "Birdie"
     },
     {
       "id": "blackzombie",
-      "name": "Black Zombie"
+      "name": "Black Zombie Disc Golf"
     },
     {
       "id": "ching",
-      "name": "Ching"
+      "name": "CHING"
     },
     {
       "id": "crosslap",
@@ -180,7 +180,7 @@
     },
     {
       "id": "finishline",
-      "name": "Finish Line"
+      "name": "Finish Line Discs"
     },
     {
       "id": "fullturn",
@@ -196,7 +196,7 @@
     },
     {
       "id": "guru",
-      "name": "Guru Disc Golf"
+      "name": "Guru"
     },
     {
       "id": "hooligan",
@@ -220,11 +220,11 @@
     },
     {
       "id": "loft",
-      "name": "Loft Discs"
+      "name": "Løft Discs"
     },
     {
       "id": "millennium",
-      "name": "Millennium"
+      "name": "Millennium Golf Discs"
     },
     {
       "id": "obdiscs",
@@ -252,7 +252,7 @@
     },
     {
       "id": "skyquest",
-      "name": "Skyquest"
+      "name": "Skyquest Discs"
     },
     {
       "id": "storm",
@@ -264,11 +264,11 @@
     },
     {
       "id": "terminalvelocity",
-      "name": "Terminal Velocity"
+      "name": "Terminal Velocity Discs"
     },
     {
       "id": "trashpanda",
-      "name": "Trash Panda"
+      "name": "Trash Panda Disc Golf"
     },
     {
       "id": "ub",
@@ -276,7 +276,7 @@
     },
     {
       "id": "vibram",
-      "name": "Vibram"
+      "name": "Vibram Disc Golf"
     },
     {
       "id": "viking",
@@ -292,15 +292,71 @@
     },
     {
       "id": "xcom",
-      "name": "X-Com"
+      "name": "XCOM Discs"
     },
     {
       "id": "yikun",
-      "name": "Yikun"
+      "name": "Yikun Discs"
     },
     {
       "id": "zing",
       "name": "Zing"
+    },
+    {
+      "id": "deity",
+      "name": "Deity Discs"
+    },
+    {
+      "id": "discgolduk",
+      "name": "Disc Golf UK"
+    },
+    {
+      "id": "doomsday",
+      "name": "Doomsday Discs"
+    },
+    {
+      "id": "element",
+      "name": "Element Discs"
+    },
+    {
+      "id": "eurodisc",
+      "name": "Eurodisc"
+    },
+    {
+      "id": "exel",
+      "name": "Exel Discs"
+    },
+    {
+      "id": "fourthcircle",
+      "name": "Fourth Circle Discs"
+    },
+    {
+      "id": "franklin",
+      "name": "Franklin Sports"
+    },
+    {
+      "id": "neptune",
+      "name": "Neptune Discs"
+    },
+    {
+      "id": "nordisc",
+      "name": "Nordisc"
+    },
+    {
+      "id": "snap",
+      "name": "Snap Discsports"
+    },
+    {
+      "id": "tobu",
+      "name": "Tobu Discs"
+    },
+    {
+      "id": "windward",
+      "name": "Windward Discs"
+    },
+    {
+      "id": "wingman",
+      "name": "Wingman Discs"
     }
   ]
 }
