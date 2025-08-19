@@ -3,9 +3,16 @@ extends ../layout
 block content
   h2 Nuevo disco
   form(action='/discs/new' method='post' enctype='multipart/form-data')
-    div
-      label(for='brand') Marca:
-      input(type='text' name='brand' id='brand' required)
+    .group
+      label(for="brand") Fabricante
+      if manufacturers && manufacturers.length
+        select#brand(name="brand" required)
+          option(value="") Selecciona fabricante
+          each m in manufacturers
+            option(value=m.name)= m.name
+      else
+        // fallback si no hay catálogo
+        input#brand(type="text" name="brand" placeholder="Fabricante" required)
     div
       label(for='model') Modelo:
       input(type='text' name='model' id='model' required)

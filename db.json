@@ -32,5 +32,79 @@
       "attempts": 0
     }
   },
-  "discStats": {}
+  "discStats": {},
+  "manufacturers": [
+    {
+      "id": "innova",
+      "name": "Innova"
+    },
+    {
+      "id": "discraft",
+      "name": "Discraft"
+    },
+    {
+      "id": "dynamic",
+      "name": "Dynamic Discs"
+    },
+    {
+      "id": "latitude64",
+      "name": "Latitude 64"
+    },
+    {
+      "id": "westside",
+      "name": "Westside Discs"
+    },
+    {
+      "id": "discmania",
+      "name": "Discmania"
+    },
+    {
+      "id": "mvp",
+      "name": "MVP"
+    },
+    {
+      "id": "axiom",
+      "name": "Axiom"
+    },
+    {
+      "id": "streamline",
+      "name": "Streamline"
+    },
+    {
+      "id": "prodigy",
+      "name": "Prodigy"
+    },
+    {
+      "id": "kastaplast",
+      "name": "Kastaplast"
+    },
+    {
+      "id": "lonestar",
+      "name": "Lone Star"
+    },
+    {
+      "id": "infinite",
+      "name": "Infinite Discs"
+    },
+    {
+      "id": "gateway",
+      "name": "Gateway"
+    },
+    {
+      "id": "clash",
+      "name": "Clash Discs"
+    },
+    {
+      "id": "tsa",
+      "name": "Thought Space Athletics"
+    },
+    {
+      "id": "dga",
+      "name": "DGA"
+    },
+    {
+      "id": "mint",
+      "name": "Mint Discs"
+    }
+  ]
 }

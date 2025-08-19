@@ -17,6 +17,7 @@ const adapter = new JSONFile(file);
 const defaultData = {
   discs: [],
   routines: [],
+  manufacturers: [],
   stats: {
     circle1: { hits: 0, attempts: 0 },
     circle2: { hits: 0, attempts: 0 }
@@ -77,12 +78,34 @@ app.use((req, res, next) => {
 
 
 // Discs
-app.get('/discs', (req, res) => {
-  res.render('discs/index', { discs: db.data.discs });
+app.get('/discs/new', (req, res) => {
+  const manufacturers = db.data.manufacturers || [];
+  res.render('discs/new', { manufacturers });
 });
 
-app.get('/discs/new', (req, res) => {
-  res.render('discs/new');
+app.get('/discs', (req, res) => {
+  const discs = (db.data.discs || []).map((d) => {
+    const st = db.data.discStats?.[d.id] || {
+      circle1: { hits: 0, attempts: 0 },
+      circle2: { hits: 0, attempts: 0 },
+    };
+    const c1h = st.circle1.hits || 0,
+      c1a = st.circle1.attempts || 0;
+    const c2h = st.circle2.hits || 0,
+      c2a = st.circle2.attempts || 0;
+    const th = c1h + c2h,
+      ta = c1a + c2a;
+    const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
+    return {
+      ...d,
+      stats: {
+        c1: { h: c1h, a: c1a, pct: pct(c1h, c1a) },
+        c2: { h: c2h, a: c2a, pct: pct(c2h, c2a) },
+        total: { h: th, a: ta, pct: pct(th, ta) },
+      },
+    };
+  });
+  res.render('discs/index', { discs });
 });
 
 app.post('/discs/new', upload.single('image'), (req, res) => {
