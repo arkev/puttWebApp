@@ -13,13 +13,13 @@ block content
         input#alias(type='text' name='alias' required value=disc?disc.alias:'')
       .group
         label(for='model') Modelo
-        input#model(type='text' name='model' id='model' required value=disc?disc.model:'')
+        input#model(type='text' name='model' required value=disc?disc.model:'')
       .group
         label(for='color') Color de disco
-        input#color(type='color' name='color' id='color' value=disc?disc.color:'#000000')
+        input#color(type='color' name='color' value=disc?disc.color:'#000000')
       .group
         label(for='image') Imagen
-        input#image(type='file' name='image' id='image' accept='image/*')
+        input#image(type='file' name='image' accept='image/*')
       .group
         label(for="brand") Fabricante
         if manufacturers && manufacturers.length
@@ -32,10 +32,10 @@ block content
           input#brand(type="text" name="brand" placeholder="Fabricante" required value=disc?disc.brand:'')
       .group
         label(for='plastic') Plástico
-        input#plastic(type='text' name='plastic' id='plastic' value=disc?disc.plastic:'')
+        input#plastic(type='text' name='plastic' value=disc?disc.plastic:'')
       .group
         label(for='weight') Peso (g)
-        input#weight(type='number' name='weight' id='weight' value=disc?disc.weight:'')
+        input#weight(type='number' name='weight' value=disc?disc.weight:'')
       .group
         label Números de vuelo
         .flight-inputs
