@@ -80,11 +80,16 @@ app.use((req, res, next) => {
 // Discs
 app.get('/discs/new', (req, res) => {
   const manufacturers = db.data.manufacturers || [];
-  res.render('discs/new', { manufacturers });
+  res.render('discs/new', { manufacturers, activeTab: 'discs' });
 });
 
 app.get('/discs', (req, res) => {
   const discs = (db.data.discs || []).map((d) => {
+    let flight = d.flight;
+    if (typeof flight === 'string') {
+      const [speed, glide, turn, fade] = flight.split('|');
+      flight = { speed, glide, turn, fade };
+    }
     const st = db.data.discStats?.[d.id] || {
       circle1: { hits: 0, attempts: 0 },
       circle2: { hits: 0, attempts: 0 },
@@ -98,6 +103,7 @@ app.get('/discs', (req, res) => {
     const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
     return {
       ...d,
+      flight,
       stats: {
         c1: { h: c1h, a: c1a, pct: pct(c1h, c1a) },
         c2: { h: c2h, a: c2a, pct: pct(c2h, c2a) },
@@ -109,10 +115,34 @@ app.get('/discs', (req, res) => {
 });
 
 app.post('/discs/new', upload.single('image'), (req, res) => {
-  const { brand, model, plastic, weight, color, flight } = req.body;
-  const disc = { id: uuidv4(), brand, model, plastic, weight, color, flight };
+  const { alias, brand, model, plastic, weight, color, speed, glide, turn, fade } = req.body;
+  const flight = { speed, glide, turn, fade };
+  const disc = { id: uuidv4(), alias, brand, model, plastic, weight, color, flight };
   if (req.file) disc.image = req.file.filename;
   db.data.discs.push(disc);
+  db.write();
+  res.redirect('/discs');
+});
+
+app.get('/discs/:id/edit', (req, res) => {
+  const disc = db.data.discs.find((d) => d.id === req.params.id);
+  if (!disc) return res.redirect('/discs');
+  if (typeof disc.flight === 'string') {
+    const [speed, glide, turn, fade] = disc.flight.split('|');
+    disc.flight = { speed, glide, turn, fade };
+  }
+  const manufacturers = db.data.manufacturers || [];
+  res.render('discs/new', { disc, manufacturers, activeTab: 'discs' });
+});
+
+app.post('/discs/:id/edit', upload.single('image'), (req, res) => {
+  const idx = db.data.discs.findIndex((d) => d.id === req.params.id);
+  if (idx === -1) return res.redirect('/discs');
+  const { alias, brand, model, plastic, weight, color, speed, glide, turn, fade } = req.body;
+  const flight = { speed, glide, turn, fade };
+  const disc = db.data.discs[idx];
+  db.data.discs[idx] = { ...disc, alias, brand, model, plastic, weight, color, flight };
+  if (req.file) db.data.discs[idx].image = req.file.filename;
   db.write();
   res.redirect('/discs');
 });
@@ -120,6 +150,10 @@ app.post('/discs/new', upload.single('image'), (req, res) => {
 app.get('/discs/:id', (req, res) => {
   const disc = db.data.discs.find((d) => d.id === req.params.id);
   if (!disc) return res.redirect('/discs');
+  if (typeof disc.flight === 'string') {
+    const [speed, glide, turn, fade] = disc.flight.split('|');
+    disc.flight = { speed, glide, turn, fade };
+  }
   const stats = db.data.discStats[disc.id];
   res.render('discs/show', { disc, stats });
 });

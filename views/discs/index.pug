@@ -17,6 +17,8 @@ block content
                 label.chk
                   input(type="checkbox" name="ids" value=d.id)
                   span Comparar
+                a.edit(href=`/discs/${d.id}/edit` aria-label="Editar")
+                  i.fa-solid.fa-pencil
               .main
                 .img
                   if d.image
@@ -24,8 +26,8 @@ block content
                   else
                     .ph-img
                 .info
-                  h3= d.model
-                  .meta #{d.brand} • #{d.plastic || '—'} • #{d.weight || '—'}g
+                  h3= d.alias || d.model
+                  .meta #{d.brand} #{d.model} • #{d.plastic || '—'} • #{d.weight || '—'}g
                   if d.flight
                     .flight #{d.flight.speed || '–'} | #{d.flight.glide || '–'} | #{d.flight.turn || '–'} | #{d.flight.fade || '–'}
               .stats

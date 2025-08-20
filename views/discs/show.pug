@@ -1,14 +1,15 @@
 extends ../layout
 
 block content
-  h2 #{disc.brand} #{disc.model}
+  h2= disc.alias || `${disc.brand} ${disc.model}`
   if disc.image
     img(src=`/images/${disc.image}` alt=`${disc.brand} ${disc.model}` width='150')
   ul
     li Plástico: #{disc.plastic}
     li Peso: #{disc.weight} g
     li Color: #{disc.color}
-    li Números de vuelo: #{disc.flight}
+    if disc.flight
+      li Números de vuelo: #{disc.flight.speed || '–'} | #{disc.flight.glide || '–'} | #{disc.flight.turn || '–'} | #{disc.flight.fade || '–'}
   if stats
     h3 Estadísticas
     p Círculo 1: #{stats.circle1.hits} / #{stats.circle1.attempts}
