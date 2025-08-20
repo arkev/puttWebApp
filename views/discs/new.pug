@@ -6,7 +6,6 @@ block content
       a.close(href="/discs" aria-label="Cerrar")
         i.fa-solid.fa-xmark
       h1= disc ? 'Editar Disco' : 'Agregar Disco Nuevo'
-      button.save(type="submit" form="discForm") Guardar
     form#discForm(action=disc ? `/discs/${disc.id}/edit` : '/discs/new' method='post' enctype='multipart/form-data')
       .group
         label(for='alias') Alias
@@ -43,6 +42,8 @@ block content
           input(type='number' name='glide' placeholder='Planeo' value=disc && disc.flight ? disc.flight.glide : '')
           input(type='number' name='turn' placeholder='Vuelta' value=disc && disc.flight ? disc.flight.turn : '')
           input(type='number' name='fade' placeholder='Caída' value=disc && disc.flight ? disc.flight.fade : '')
+      .group
+        button.btn(type='submit') Guardar
     .bottom-nav
       a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
         i.fa-solid.fa-house
