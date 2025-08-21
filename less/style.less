@@ -14,6 +14,7 @@ body {
   padding: 0;
   font-size: 16px;
 }
+input, select, textarea { font-size: 16px; }
 header {
   background: @primary;
   color: #fff;
@@ -171,7 +172,15 @@ form div {
 .close { color:var(--text); font-size:24px; text-decoration:none; }
 .group { display:flex; flex-direction:column; margin-bottom:12px; }
 .group label { margin-bottom:4px; }
-.group input, .group select { padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); }
+.group input, .group select { 
+  padding:10px 12px; 
+  border-radius:8px; 
+  border:1px solid var(--border); 
+  background:var(--card); 
+  color:var(--text); 
+  width: 100%;
+  height: 40px;
+}
 .flight-inputs { display:flex; gap:6px; }
 .flight-inputs input { flex:1; }
 

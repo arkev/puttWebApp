@@ -2,13 +2,83 @@
   "discs": [
     {
       "id": "fc1716ba-15bf-4a94-86e8-a91de059c296",
-      "brand": "Innova",
+      "brand": "Innova (Innova Champion Discs)",
       "model": "Birdie",
       "plastic": "DX",
       "weight": "166",
-      "color": "Azul",
-      "flight": "1|2|0|0",
-      "image": "e3949fe8dec6a8d72377e3456b6a49a5"
+      "color": "#006ca8",
+      "flight": {
+        "speed": "1",
+        "glide": "2",
+        "turn": "0",
+        "fade": "0"
+      },
+      "image": "937692a58edeb8a91063f5993b384783",
+      "alias": "Birdie "
+    },
+    {
+      "id": "99bbde97-9b7e-46c0-9c63-9851cc999b65",
+      "alias": "Venenoso",
+      "brand": "Discraft",
+      "model": "Venom",
+      "plastic": "Esp",
+      "weight": "174",
+      "color": "#00d7d6",
+      "flight": {
+        "speed": "12",
+        "glide": "5",
+        "turn": "0",
+        "fade": "3"
+      },
+      "image": "9bd33872a60bebc2bff1807602573bed"
+    },
+    {
+      "id": "e31fe364-44a8-431e-b053-c28fe45f239a",
+      "alias": "F Model",
+      "brand": "Prodigy Disc",
+      "model": "F Model S",
+      "plastic": "Base Grip",
+      "weight": "144",
+      "color": "#eb4d3d",
+      "flight": {
+        "speed": "10",
+        "glide": "5",
+        "turn": "1",
+        "fade": "3"
+      },
+      "image": "08bbb439de24eb8a6f0f0cc45a979e61"
+    },
+    {
+      "id": "3ce0fc98-bfda-494d-8cbd-11b7714dd3bf",
+      "alias": "Valkyrie ",
+      "brand": "Innova (Innova Champion Discs)",
+      "model": "Valkyrie ",
+      "plastic": "DX",
+      "weight": "147",
+      "color": "#f60063",
+      "flight": {
+        "speed": "9",
+        "glide": "4",
+        "turn": "-2",
+        "fade": "2"
+      },
+      "image": "b240399906ec2fc6ea9853e7d03ee53e"
+    },
+    {
+      "id": "e722a5ad-f0bb-4277-8f2a-0a7ee40a4f36",
+      "alias": "Radiactivo ",
+      "brand": "Discraft",
+      "model": "Zone",
+      "plastic": "Esp",
+      "weight": "179",
+      "color": "#f7ce46",
+      "flight": {
+        "speed": "4",
+        "glide": "3",
+        "turn": "0",
+        "fade": "3"
+      },
+      "image": "ed6ef418738ba804f97a7159cbea322e"
     }
   ],
   "routines": [

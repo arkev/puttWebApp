@@ -53,7 +53,7 @@ block content
           input(type='number' name='turn' placeholder='Vuelta' value=disc && disc.flight ? disc.flight.turn : '')
           input(type='number' name='fade' placeholder='Caída' value=disc && disc.flight ? disc.flight.fade : '')
       .group
-        button.btn(type='submit') Guardar
+        button.btn.btn-primary(type='submit') Guardar
     .bottom-nav
       a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
         i.fa-solid.fa-house
