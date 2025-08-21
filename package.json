@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "echo 'No tests yet'"
+    "test": "echo 'No tests yet'",
+    "seed:mfr": "node scripts/seed_manufacturers.js"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",

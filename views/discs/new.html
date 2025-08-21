@@ -1,1 +1,37 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PuttLab</title><!-- Font Awesome--><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><!-- Tu CSS compilado por less-middleware--><link rel="stylesheet" href="/css/style.css"></head><body><h2>Nuevo disco</h2><form action="/discs/new" method="post" enctype="multipart/form-data"><div><label for="brand">Marca:</label><input type="text" name="brand" id="brand" required></div><div><label for="model">Modelo:</label><input type="text" name="model" id="model" required></div><div><label for="plastic">Plástico:</label><input type="text" name="plastic" id="plastic"></div><div><label for="weight">Peso (g):</label><input type="number" name="weight" id="weight"></div><div><label for="color">Color:</label><input type="text" name="color" id="color"></div><div><label for="flight">Números de vuelo:</label><input type="text" name="flight" id="flight"></div><div><label for="image">Imagen:</label><input type="file" name="image" id="image" accept="image/*"></div><div><button type="submit">Guardar</button></div></form></body></html>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"><title>PuttLab</title><!-- Font Awesome--><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><!-- Tu CSS compilado por less-middleware--><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css"></head><body><div class="disc-form"><div class="header form-header"><a class="close" href="/discs" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></a><h1>Agregar Disco Nuevo</h1></div><form id="discForm" action="/discs/new" method="post" enctype="multipart/form-data"><div class="group"><label for="alias">Alias</label><input id="alias" type="text" name="alias" required value=""></div><div class="group"><label for="brand">Fabricante</label><!-- fallback si no hay catálogo--><input id="brand" type="text" name="brand" placeholder="Fabricante" required value=""></div><div class="group"><label for="model">Modelo</label><input id="model" type="text" name="model" required value=""></div><div class="group"><label for="color">Color de disco</label><input id="color" type="color" name="color" value="#000000"></div><div class="group"><label for="image">Imagen</label><input id="image" type="file" name="image" accept="image/*"><div class="crop-container" id="cropContainer"><div class="crop-header">Ajustar</div><div class="crop-area"><img id="cropImage"></div><div class="crop-actions"><button type="button" id="cropCancel">Cancelar</button><button type="button" id="cropSave">Guardar</button></div></div></div><div class="group"><label for="plastic">Plástico</label><input id="plastic" type="text" name="plastic" value=""></div><div class="group"><label for="weight">Peso (g)</label><input id="weight" type="number" name="weight" value=""></div><div class="group"><label>Números de vuelo</label><div class="flight-inputs"><input type="number" name="speed" placeholder="Velocidad" value=""><input type="number" name="glide" placeholder="Planeo" value=""><input type="number" name="turn" placeholder="Vuelta" value=""><input type="number" name="fade" placeholder="Caída" value=""></div></div><div class="group"><button class="btn btn-primary" type="submit">Guardar</button></div></form><div class="bottom-nav"><a class="nav-item" href="/"><i class="fa-solid fa-house"></i><span>Inicio</span></a><a class="nav-item" href="/discs"><i class="fa-solid fa-compact-disc"></i><span>Discos</span></a><a class="play" href="/session" aria-label="Iniciar sesión"><i class="fa-solid fa-bullseye"></i></a><a class="nav-item" href="/routines"><i class="fa-solid fa-list-check"></i><span>Rutinas</span></a><a class="nav-item" href="/you"><i class="fa-solid fa-user"></i><span>Tú</span></a></div></div><script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script><script>(function(){
+  const input = document.getElementById('image');
+  const container = document.getElementById('cropContainer');
+  const img = document.getElementById('cropImage');
+  const cancel = document.getElementById('cropCancel');
+  const save = document.getElementById('cropSave');
+  let cropper;
+  if(!input) return;
+  input.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      img.src = reader.result;
+      container.classList.add('show');
+      cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1 });
+    };
+    reader.readAsDataURL(file);
+  });
+  cancel.addEventListener('click', () => {
+    container.classList.remove('show');
+    cropper && cropper.destroy();
+    input.value = '';
+  });
+  save.addEventListener('click', () => {
+    if(!cropper) return;
+    const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+    canvas.toBlob(blob => {
+      const file = new File([blob], input.files[0].name, { type: input.files[0].type });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      container.classList.remove('show');
+      cropper.destroy();
+    });
+  });
+})();</script></body></html>

@@ -1,28 +1,112 @@
 extends ../layout
 
+block head
+  link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css')
+
 block content
-  h2 Nuevo disco
-  form(action='/discs/new' method='post' enctype='multipart/form-data')
-    div
-      label(for='brand') Marca:
-      input(type='text' name='brand' id='brand' required)
-    div
-      label(for='model') Modelo:
-      input(type='text' name='model' id='model' required)
-    div
-      label(for='plastic') Plástico:
-      input(type='text' name='plastic' id='plastic')
-    div
-      label(for='weight') Peso (g):
-      input(type='number' name='weight' id='weight')
-    div
-      label(for='color') Color:
-      input(type='text' name='color' id='color')
-    div
-      label(for='flight') Números de vuelo:
-      input(type='text' name='flight' id='flight')
-    div
-      label(for='image') Imagen:
-      input(type='file' name='image' id='image' accept='image/*')
-    div
-      button(type='submit') Guardar
+  .disc-form
+    .header.form-header
+      a.close(href="/discs" aria-label="Cerrar")
+        i.fa-solid.fa-xmark
+      h1= disc ? 'Editar Disco' : 'Agregar Disco Nuevo'
+    form#discForm(action=disc ? `/discs/${disc.id}/edit` : '/discs/new' method='post' enctype='multipart/form-data')
+      .group
+        label(for='alias') Alias
+        input#alias(type='text' name='alias' required value=disc?disc.alias:'')
+      .group
+        label(for="brand") Fabricante
+        if manufacturers && manufacturers.length
+          select#brand(name="brand" required)
+            option(value="") Selecciona fabricante
+            each m in manufacturers
+              option(value=m.name selected=(disc && disc.brand===m.name)?true:false)= m.name
+        else
+          // fallback si no hay catálogo
+          input#brand(type="text" name="brand" placeholder="Fabricante" required value=disc?disc.brand:'')
+      .group
+        label(for='model') Modelo
+        input#model(type='text' name='model' required value=disc?disc.model:'')
+      .group
+        label(for='color') Color de disco
+        input#color(type='color' name='color' value=disc?disc.color:'#000000')
+      .group
+        label(for='image') Imagen
+        input#image(type='file' name='image' accept='image/*')
+        #cropContainer.crop-container
+          .crop-header Ajustar
+          .crop-area
+            img#cropImage
+          .crop-actions
+            button(type='button' id='cropCancel') Cancelar
+            button(type='button' id='cropSave') Guardar
+      .group
+        label(for='plastic') Plástico
+        input#plastic(type='text' name='plastic' value=disc?disc.plastic:'')
+      .group
+        label(for='weight') Peso (g)
+        input#weight(type='number' name='weight' value=disc?disc.weight:'')
+      .group
+        label Números de vuelo
+        .flight-inputs
+          input(type='number' name='speed' placeholder='Velocidad' value=disc && disc.flight ? disc.flight.speed : '')
+          input(type='number' name='glide' placeholder='Planeo' value=disc && disc.flight ? disc.flight.glide : '')
+          input(type='number' name='turn' placeholder='Vuelta' value=disc && disc.flight ? disc.flight.turn : '')
+          input(type='number' name='fade' placeholder='Caída' value=disc && disc.flight ? disc.flight.fade : '')
+      .group
+        button.btn.btn-primary(type='submit') Guardar
+    .bottom-nav
+      a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(class=activeTab==='discs' ? 'active' : '', href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(class=activeTab==='routines' ? 'active' : '', href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
+        i.fa-solid.fa-user
+        span Tú
+
+block scripts
+  script(src='https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js')
+  script.
+    (function(){
+      const input = document.getElementById('image');
+      const container = document.getElementById('cropContainer');
+      const img = document.getElementById('cropImage');
+      const cancel = document.getElementById('cropCancel');
+      const save = document.getElementById('cropSave');
+      let cropper;
+      if(!input) return;
+      input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          img.src = reader.result;
+          container.classList.add('show');
+          cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1 });
+        };
+        reader.readAsDataURL(file);
+      });
+      cancel.addEventListener('click', () => {
+        container.classList.remove('show');
+        cropper && cropper.destroy();
+        input.value = '';
+      });
+      save.addEventListener('click', () => {
+        if(!cropper) return;
+        const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+        canvas.toBlob(blob => {
+          const file = new File([blob], input.files[0].name, { type: input.files[0].type });
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          input.files = dt.files;
+          container.classList.remove('show');
+          cropper.destroy();
+        });
+      });
+    })();

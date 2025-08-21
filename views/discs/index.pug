@@ -1,16 +1,74 @@
 extends ../layout
 
 block content
-  h2 Catálogo de discos
-  a(href='/discs/new') Agregar disco
-  if discs.length
-    form(action='/discs/compare' method='get')
-      ul
-        each disc in discs
-          li
-            label
-              input(type='checkbox' name='ids' value=disc.id)
-              a(href=`/discs/${disc.id}`) #{disc.brand} #{disc.model} (#{disc.plastic})
-      button(type='submit') Comparar seleccionados
-  else
-    p No hay discos registrados.
+  .discs
+    .header
+      .left
+        h1 Mis Discos
+      .right
+        a.add-disc(href="/discs/new" aria-label="Agregar disco")
+          i.fa-solid.fa-plus
+    if discs.length
+      form(method="get" action="/discs/compare" id="compareForm")
+        .grid
+          each d in discs
+            .card
+              .top
+                label.chk
+                  input(type="checkbox" name="ids" value=d.id)
+                  span Comparar
+                a.edit(href=`/discs/${d.id}/edit` aria-label="Editar")
+                  i.fa-solid.fa-pencil
+              .main
+                .img
+                  if d.image
+                    img(src=`/images/${d.image}` alt=d.model)
+                  else
+                    .ph-img
+                .info
+                  h3= d.alias || d.model
+                  .meta #{d.brand} #{d.model} • #{d.plastic || '—'} • #{d.weight || '—'}g
+                  if d.flight
+                    .flight #{d.flight.speed || '–'} | #{d.flight.glide || '–'} | #{d.flight.turn || '–'} | #{d.flight.fade || '–'}
+              .stats
+                .row
+                  .label Total
+                  .val #{d.stats.total.pct}% (#{d.stats.total.h}/#{d.stats.total.a})
+                .row
+                  .label C1
+                  .val #{d.stats.c1.pct}% (#{d.stats.c1.h}/#{d.stats.c1.a})
+                .row
+                  .label C2
+                  .val #{d.stats.c2.pct}% (#{d.stats.c2.h}/#{d.stats.c2.a})
+        .actions
+          button.btn(type="submit" id="btnCompare" disabled) Comparar seleccionados
+    else
+      p No tienes discos todavía.
+    .bottom-nav
+      a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(class=activeTab==='discs' ? 'active' : '', href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(class=activeTab==='routines' ? 'active' : '', href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
+        i.fa-solid.fa-user
+        span Tú
+  script.
+    (function(){
+      const form = document.getElementById('compareForm');
+      if(!form) return;
+      const btn = document.getElementById('btnCompare');
+      const onChange = () => {
+        const checked = form.querySelectorAll('input[type="checkbox"]:checked').length;
+        btn.disabled = checked < 2; // mínimo 2 para comparar
+        btn.textContent = checked ? `Comparar (${checked})` : 'Comparar seleccionados';
+      };
+      form.addEventListener('change', onChange);
+      onChange();
+    })();
