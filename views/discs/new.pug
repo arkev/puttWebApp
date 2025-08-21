@@ -1,5 +1,8 @@
 extends ../layout
 
+block head
+  link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css')
+
 block content
   .disc-form
     .header.form-header
@@ -11,15 +14,6 @@ block content
         label(for='alias') Alias
         input#alias(type='text' name='alias' required value=disc?disc.alias:'')
       .group
-        label(for='model') Modelo
-        input#model(type='text' name='model' required value=disc?disc.model:'')
-      .group
-        label(for='color') Color de disco
-        input#color(type='color' name='color' value=disc?disc.color:'#000000')
-      .group
-        label(for='image') Imagen
-        input#image(type='file' name='image' accept='image/*')
-      .group
         label(for="brand") Fabricante
         if manufacturers && manufacturers.length
           select#brand(name="brand" required)
@@ -29,6 +23,15 @@ block content
         else
           // fallback si no hay catálogo
           input#brand(type="text" name="brand" placeholder="Fabricante" required value=disc?disc.brand:'')
+      .group
+        label(for='model') Modelo
+        input#model(type='text' name='model' required value=disc?disc.model:'')
+      .group
+        label(for='color') Color de disco
+        input#color(type='color' name='color' value=disc?disc.color:'#000000')
+      .group
+        label(for='image') Imagen
+        input#image(type='file' name='image' accept='image/*')
       .group
         label(for='plastic') Plástico
         input#plastic(type='text' name='plastic' value=disc?disc.plastic:'')
@@ -59,3 +62,52 @@ block content
       a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
         i.fa-solid.fa-user
         span Tú
+
+  #cropModal.crop-modal
+    .crop-header Ajustar
+    .crop-area
+      img#cropImage
+    .crop-actions
+      button(type='button' id='cropCancel') Cancelar
+      button(type='button' id='cropSave') Guardar
+
+block scripts
+  script(src='https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js')
+  script.
+    (function(){
+      const input = document.getElementById('image');
+      const modal = document.getElementById('cropModal');
+      const img = document.getElementById('cropImage');
+      const cancel = document.getElementById('cropCancel');
+      const save = document.getElementById('cropSave');
+      let cropper;
+      if(!input) return;
+      input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          img.src = reader.result;
+          modal.classList.add('show');
+          cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1 });
+        };
+        reader.readAsDataURL(file);
+      });
+      cancel.addEventListener('click', () => {
+        modal.classList.remove('show');
+        cropper && cropper.destroy();
+        input.value = '';
+      });
+      save.addEventListener('click', () => {
+        if(!cropper) return;
+        const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+        canvas.toBlob(blob => {
+          const file = new File([blob], input.files[0].name, { type: input.files[0].type });
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          input.files = dt.files;
+          modal.classList.remove('show');
+          cropper.destroy();
+        });
+      });
+    })();

@@ -94,11 +94,15 @@ const { JSONFile } = require('lowdb/node');
     { id: 'zing', name: 'Zing' },
   ];
 
+  list.sort((a, b) => a.name.localeCompare(b.name));
+
   for (const m of list) {
     const i = db.data.manufacturers.findIndex((x) => x.id === m.id);
     if (i >= 0) db.data.manufacturers[i] = { ...db.data.manufacturers[i], ...m };
     else db.data.manufacturers.push(m);
   }
+
+  db.data.manufacturers.sort((a, b) => a.name.localeCompare(b.name));
 
   await db.write();
   console.log('✅ Manufacturers seed listo');

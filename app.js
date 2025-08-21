@@ -79,7 +79,9 @@ app.use((req, res, next) => {
 
 // Discs
 app.get('/discs/new', (req, res) => {
-  const manufacturers = db.data.manufacturers || [];
+  const manufacturers = (db.data.manufacturers || [])
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
   res.render('discs/new', { manufacturers, activeTab: 'discs' });
 });
 
@@ -131,7 +133,9 @@ app.get('/discs/:id/edit', (req, res) => {
     const [speed, glide, turn, fade] = disc.flight.split('|');
     disc.flight = { speed, glide, turn, fade };
   }
-  const manufacturers = db.data.manufacturers || [];
+  const manufacturers = (db.data.manufacturers || [])
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
   res.render('discs/new', { disc, manufacturers, activeTab: 'discs' });
 });
 
