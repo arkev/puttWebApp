@@ -175,10 +175,10 @@ form div {
 .flight-inputs { display:flex; gap:6px; }
 .flight-inputs input { flex:1; }
 
-.crop-modal { position:fixed; inset:0; background:#000; display:none; flex-direction:column; z-index:200; }
-.crop-modal.show { display:flex; }
-.crop-header { color:#fff; text-align:center; padding:12px; font-size:18px; }
-.crop-area { flex:1; display:flex; align-items:center; justify-content:center; }
+.crop-container { display:none; flex-direction:column; margin-top:12px; }
+.crop-container.show { display:flex; }
+.crop-header { text-align:center; padding:8px 0; font-size:18px; }
+.crop-area { width:100%; max-height:300px; display:flex; align-items:center; justify-content:center; }
 .crop-area img { max-width:100%; max-height:100%; }
-.crop-actions { display:flex; justify-content:space-between; padding:12px; }
+.crop-actions { display:flex; justify-content:space-between; padding-top:8px; }
 .crop-actions button { background:none; border:0; color:var(--accent); font-size:16px; }

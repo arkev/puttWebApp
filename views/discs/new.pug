@@ -32,6 +32,13 @@ block content
       .group
         label(for='image') Imagen
         input#image(type='file' name='image' accept='image/*')
+        #cropContainer.crop-container
+          .crop-header Ajustar
+          .crop-area
+            img#cropImage
+          .crop-actions
+            button(type='button' id='cropCancel') Cancelar
+            button(type='button' id='cropSave') Guardar
       .group
         label(for='plastic') Plástico
         input#plastic(type='text' name='plastic' value=disc?disc.plastic:'')
@@ -63,20 +70,12 @@ block content
         i.fa-solid.fa-user
         span Tú
 
-  #cropModal.crop-modal
-    .crop-header Ajustar
-    .crop-area
-      img#cropImage
-    .crop-actions
-      button(type='button' id='cropCancel') Cancelar
-      button(type='button' id='cropSave') Guardar
-
 block scripts
   script(src='https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js')
   script.
     (function(){
       const input = document.getElementById('image');
-      const modal = document.getElementById('cropModal');
+      const container = document.getElementById('cropContainer');
       const img = document.getElementById('cropImage');
       const cancel = document.getElementById('cropCancel');
       const save = document.getElementById('cropSave');
@@ -88,13 +87,13 @@ block scripts
         const reader = new FileReader();
         reader.onload = () => {
           img.src = reader.result;
-          modal.classList.add('show');
+          container.classList.add('show');
           cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1 });
         };
         reader.readAsDataURL(file);
       });
       cancel.addEventListener('click', () => {
-        modal.classList.remove('show');
+        container.classList.remove('show');
         cropper && cropper.destroy();
         input.value = '';
       });
@@ -106,7 +105,7 @@ block scripts
           const dt = new DataTransfer();
           dt.items.add(file);
           input.files = dt.files;
-          modal.classList.remove('show');
+          container.classList.remove('show');
           cropper.destroy();
         });
       });
