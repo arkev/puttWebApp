@@ -1,13 +1,55 @@
 extends ../layout
 
 block content
-  h2 Nueva rutina
-  form(action='/routines/new' method='post')
-    div
-      label(for='name') Nombre:
-      input(type='text' name='name' id='name' required)
-    div
-      label(for='distances') Distancias de estaciones (separadas por coma en metros):
-      input(type='text' name='distances' id='distances' placeholder='5,7,10')
-    div
-      button(type='submit') Guardar
+  .routine-form
+    .header.form-header
+      a.close(href="/routines" aria-label="Cerrar")
+        i.fa-solid.fa-xmark
+      if routine
+        h1 Editar rutina
+      else
+        h1 Agregar rutina
+    form(action=routine ? `/routines/${routine.id}/edit` : '/routines/new' method='post')
+      .group
+        label(for='name') Nombre
+        input#name(type='text' name='name' required value=routine ? routine.name : '')
+      .group
+        label Distancias de estaciones (m)
+        .stations-inputs#stationsContainer
+          if routine && routine.stations.length
+            each d in routine.stations
+              input(type='number' name='stations' value=d min='0')
+          else
+            input(type='number' name='stations' min='0')
+        button.add-station(type='button' id='addStation') Añadir estación
+      .group
+        button.btn.btn-primary(type='submit') Guardar
+    .bottom-nav
+      a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(class=activeTab==='discs' ? 'active' : '', href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(class=activeTab==='routines' ? 'active' : '', href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
+        i.fa-solid.fa-user
+        span Tú
+  script.
+    (function(){
+      const btn=document.getElementById('addStation');
+      const container=document.getElementById('stationsContainer');
+      if(btn && container){
+        btn.addEventListener('click',()=>{
+          const input=document.createElement('input');
+          input.type='number';
+          input.name='stations';
+          input.min='0';
+          container.appendChild(input);
+        });
+      }
+    })();

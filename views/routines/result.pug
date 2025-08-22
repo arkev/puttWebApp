@@ -1,7 +1,26 @@
 extends ../layout
 
 block content
-  h2 Resultados guardados
-  p ¿Deseas repetir la rutina?
-  a(href=`/routines/${routine.id}/start`) Repetir
-  a(href='/') Salir
+  .routine-form
+    .header.form-header
+      a.close(href="/routines" aria-label="Cerrar")
+        i.fa-solid.fa-xmark
+      h1 Resultados guardados
+    p ¿Deseas repetir la rutina?
+    a.btn.btn-primary(href=`/routines/${routine.id}/start?mode=total`) Repetir
+    a.btn.btn-primary(href='/') Salir
+    .bottom-nav
+      a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(class=activeTab==='discs' ? 'active' : '', href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(class=activeTab==='routines' ? 'active' : '', href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
+        i.fa-solid.fa-user
+        span Tú
