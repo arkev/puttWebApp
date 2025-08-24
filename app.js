@@ -212,8 +212,14 @@ app.get('/routines/:id/start', (req, res) => {
   const routine = db.data.routines.find((r) => r.id === req.params.id);
   if (!routine) return res.redirect('/routines');
   const mode = req.query.mode;
-  const discs = db.data.discs;
-  res.render('routines/start', { routine, mode, discs, activeTab: 'routines' });
+  let discs = db.data.discs;
+  const discIds = req.query.discIds;
+  const totalDiscs = req.query.totalDiscs;
+  if (mode === 'individual' && discIds) {
+    const ids = Array.isArray(discIds) ? discIds : [discIds];
+    discs = discs.filter((d) => ids.includes(d.id));
+  }
+  res.render('routines/start', { routine, mode, discs, totalDiscs, activeTab: 'routines' });
 });
 
 app.post('/routines/:id/complete', (req, res) => {

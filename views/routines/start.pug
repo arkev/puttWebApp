@@ -7,25 +7,58 @@ block content
         i.fa-solid.fa-xmark
       h1 Iniciar rutina #{routine.name}
     if !mode
-      form(action=`/routines/${routine.id}/start` method='get')
-        p Selecciona modalidad:
-        div
-          label
-            input(type='radio' name='mode' value='individual')
-            | Putts individuales
-        div
-          label
-            input(type='radio' name='mode' value='total')
-            | Putts totales
-        button.btn.btn-primary(type='submit') Continuar
+      .mode-tabs
+        .tab-buttons
+          button.tab-btn.active(type='button' data-tab='individual') Putts individuales
+          button.tab-btn(type='button' data-tab='total') Putts totales
+        form#individualForm(action=`/routines/${routine.id}/start` method='get')
+          input(type='hidden' name='mode' value='individual')
+          p Selecciona discos a usar:
+          .disc-selects
+            .group
+              select(name='discIds' required)
+                each disc in discs
+                  option(value=disc.id) #{disc.brand} #{disc.model}
+          button#addDisc(type='button' class='add-disc') + Añadir disco
+          button.btn.btn-primary(type='submit') Iniciar rutina
+        form#totalForm.hidden(action=`/routines/${routine.id}/start` method='get')
+          input(type='hidden' name='mode' value='total')
+          .group
+            label(for='totalDiscs') Total de discos por estación
+            input#totalDiscs(type='number' name='totalDiscs' min='1' value='1' required)
+          button.btn.btn-primary(type='submit') Iniciar rutina
+        script.
+          (function(){
+            const tabs=document.querySelectorAll('.tab-btn');
+            const individualForm=document.getElementById('individualForm');
+            const totalForm=document.getElementById('totalForm');
+            tabs.forEach(btn=>btn.addEventListener('click',()=>{
+              tabs.forEach(b=>b.classList.remove('active'));
+              btn.classList.add('active');
+              if(btn.dataset.tab==='individual'){
+                individualForm.classList.remove('hidden');
+                totalForm.classList.add('hidden');
+              } else {
+                totalForm.classList.remove('hidden');
+                individualForm.classList.add('hidden');
+              }
+            }));
+            const addBtn=document.getElementById('addDisc');
+            if(addBtn){
+              addBtn.addEventListener('click',()=>{
+                const container=document.querySelector('.disc-selects');
+                const first=container.querySelector('.group');
+                const clone=first.cloneNode(true);
+                container.appendChild(clone);
+              });
+            }
+          })();
     else if mode=='individual'
       form(action=`/routines/${routine.id}/complete?mode=individual` method='post')
-        p Selecciona discos y registra resultados por círculo.
         each disc in discs
           div
-            label
-              input(type='checkbox' name='discIds' value=disc.id)
-              | #{disc.brand} #{disc.model}
+            input(type='hidden' name='discIds' value=disc.id)
+            label #{disc.brand} #{disc.model}
             br
             |  C1 intentos:
             input(type='number' name=`attc1_${disc.id}` min='0' value='0')
@@ -43,7 +76,7 @@ block content
           div
             label Estación #{i+1} (#{station} m)
             |  Putts:
-            input(type='number' name=`attempts_${i}` min='0' value='0')
+            input(type='number' name=`attempts_${i}` min='0' value=totalDiscs || 0)
             |  Aciertos:
             input(type='number' name=`hits_${i}` min='0' value='0')
         button.btn.btn-primary(type='submit') Guardar resultados
