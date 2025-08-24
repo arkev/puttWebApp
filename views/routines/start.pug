@@ -1,45 +1,64 @@
 extends ../layout
 
 block content
-  h2 Iniciar rutina #{routine.name}
-  if !mode
-    form(action=`/routines/${routine.id}/start` method='get')
-      p Selecciona modalidad:
-      div
-        label
-          input(type='radio' name='mode' value='individual')
-          | Putts individuales
-      div
-        label
-          input(type='radio' name='mode' value='total')
-          | Putts totales
-      button(type='submit') Continuar
-  else if mode=='individual'
-    form(action=`/routines/${routine.id}/complete?mode=individual` method='post')
-      p Selecciona discos y registra resultados por círculo.
-      each disc in discs
+  .routine-form
+    .header.form-header
+      a.close(href="/routines" aria-label="Cerrar")
+        i.fa-solid.fa-xmark
+      h1 Iniciar rutina #{routine.name}
+    if !mode
+      form(action=`/routines/${routine.id}/start` method='get')
+        p Selecciona modalidad:
         div
           label
-            input(type='checkbox' name='discIds' value=disc.id)
-            | #{disc.brand} #{disc.model}
-          br
-          |  C1 intentos:
-          input(type='number' name=`attc1_${disc.id}` min='0' value='0')
-          |  C1 aciertos:
-          input(type='number' name=`hitc1_${disc.id}` min='0' value='0')
-          br
-          |  C2 intentos:
-          input(type='number' name=`attc2_${disc.id}` min='0' value='0')
-          |  C2 aciertos:
-          input(type='number' name=`hitc2_${disc.id}` min='0' value='0')
-      button(type='submit') Guardar resultados
-  else if mode=='total'
-    form(action=`/routines/${routine.id}/complete?mode=total` method='post')
-      each station, i in routine.stations
+            input(type='radio' name='mode' value='individual')
+            | Putts individuales
         div
-          label Estación #{i+1} (#{station} m)
-          |  Putts:
-          input(type='number' name=`attempts_${i}` min='0' value='0')
-          |  Aciertos:
-          input(type='number' name=`hits_${i}` min='0' value='0')
-      button(type='submit') Guardar resultados
+          label
+            input(type='radio' name='mode' value='total')
+            | Putts totales
+        button.btn.btn-primary(type='submit') Continuar
+    else if mode=='individual'
+      form(action=`/routines/${routine.id}/complete?mode=individual` method='post')
+        p Selecciona discos y registra resultados por círculo.
+        each disc in discs
+          div
+            label
+              input(type='checkbox' name='discIds' value=disc.id)
+              | #{disc.brand} #{disc.model}
+            br
+            |  C1 intentos:
+            input(type='number' name=`attc1_${disc.id}` min='0' value='0')
+            |  C1 aciertos:
+            input(type='number' name=`hitc1_${disc.id}` min='0' value='0')
+            br
+            |  C2 intentos:
+            input(type='number' name=`attc2_${disc.id}` min='0' value='0')
+            |  C2 aciertos:
+            input(type='number' name=`hitc2_${disc.id}` min='0' value='0')
+        button.btn.btn-primary(type='submit') Guardar resultados
+    else if mode=='total'
+      form(action=`/routines/${routine.id}/complete?mode=total` method='post')
+        each station, i in routine.stations
+          div
+            label Estación #{i+1} (#{station} m)
+            |  Putts:
+            input(type='number' name=`attempts_${i}` min='0' value='0')
+            |  Aciertos:
+            input(type='number' name=`hits_${i}` min='0' value='0')
+        button.btn.btn-primary(type='submit') Guardar resultados
+    .bottom-nav
+      a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(class=activeTab==='discs' ? 'active' : '', href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(class=activeTab==='routines' ? 'active' : '', href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
+        i.fa-solid.fa-user
+        span Tú

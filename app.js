@@ -171,21 +171,39 @@ app.get('/discs/compare', (req, res) => {
 
 // Routines
 app.get('/routines', (req, res) => {
-  res.render('routines/index', { routines: db.data.routines });
+  res.render('routines/index', { routines: db.data.routines, activeTab: 'routines' });
 });
 
 app.get('/routines/new', (req, res) => {
-  res.render('routines/new');
+  res.render('routines/new', { activeTab: 'routines' });
 });
 
 app.post('/routines/new', (req, res) => {
-  const { name, distances } = req.body;
-  const stations = (distances || '')
-    .split(',')
-    .map((d) => Number(d.trim()))
-    .filter((n) => !isNaN(n));
+  const { name } = req.body;
+  let stations = req.body.stations || [];
+  if (!Array.isArray(stations)) stations = [stations];
+  stations = stations.map((d) => Number(d)).filter((n) => !isNaN(n) && n > 0);
   const routine = { id: uuidv4(), name, stations };
   db.data.routines.push(routine);
+  db.write();
+  res.redirect('/routines');
+});
+
+
+app.get('/routines/:id/edit', (req, res) => {
+  const routine = db.data.routines.find(r => r.id === req.params.id);
+  if (!routine) return res.redirect('/routines');
+  res.render('routines/new', { routine, activeTab: 'routines' });
+});
+
+app.post('/routines/:id/edit', (req, res) => {
+  const idx = db.data.routines.findIndex(r => r.id === req.params.id);
+  if (idx === -1) return res.redirect('/routines');
+  const { name } = req.body;
+  let stations = req.body.stations || [];
+  if (!Array.isArray(stations)) stations = [stations];
+  stations = stations.map((d) => Number(d)).filter((n) => !isNaN(n) && n > 0);
+  db.data.routines[idx] = { ...db.data.routines[idx], name, stations };
   db.write();
   res.redirect('/routines');
 });
@@ -195,7 +213,7 @@ app.get('/routines/:id/start', (req, res) => {
   if (!routine) return res.redirect('/routines');
   const mode = req.query.mode;
   const discs = db.data.discs;
-  res.render('routines/start', { routine, mode, discs });
+  res.render('routines/start', { routine, mode, discs, activeTab: 'routines' });
 });
 
 app.post('/routines/:id/complete', (req, res) => {
@@ -239,7 +257,7 @@ app.post('/routines/:id/complete', (req, res) => {
     });
   }
   db.write();
-  res.render('routines/result', { routine });
+  res.render('routines/result', { routine, activeTab: 'routines' });
 });
 
 // Stats

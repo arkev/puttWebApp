@@ -1,12 +1,45 @@
 extends ../layout
 
 block content
-  h2 Rutinas
-  a(href='/routines/new') Crear rutina
-  if routines.length
-    ul
-      each routine in routines
-        li
-          a(href=`/routines/${routine.id}/start`) #{routine.name}
-  else
-    p No hay rutinas registradas.
+  .routines
+    .header
+      .left
+        h1 Mis rutinas
+      .right
+        a.add-disc(href="/routines/new" aria-label="Agregar rutina")
+          i.fa-solid.fa-plus
+    if routines.length
+      .grid
+        each r in routines
+          .card
+            .top
+              .meta #{r.stations.length} estaciones
+              a.edit(href=`/routines/${r.id}/edit` aria-label="Editar")
+                i.fa-solid.fa-pencil
+            .main
+              .info
+                h3= r.name
+            if r.stations && r.stations.length
+              .stations
+                each d in r.stations
+                  .badge #{d} m
+            a.btn-primary(href=`/routines/${r.id}/start?mode=total`)
+              i.fa-solid.fa-play
+              |  Iniciar
+    else
+      p No tienes rutinas todavía.
+    .bottom-nav
+      a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(class=activeTab==='discs' ? 'active' : '', href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(class=activeTab==='routines' ? 'active' : '', href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
+        i.fa-solid.fa-user
+        span Tú
