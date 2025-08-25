@@ -304,7 +304,7 @@ app.get('/session', (req, res) => {
   const routines = db.data.routines || [];
   const lastRoutine = routines[routines.length - 1];
   if (lastRoutine) {
-    return res.redirect(`/routines/${lastRoutine.id}/start?mode=total`);
+    return res.redirect(`/routines/${lastRoutine.id}/start`);
   }
   return res.redirect('/routines/new');
 });
