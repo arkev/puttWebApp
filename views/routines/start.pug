@@ -25,7 +25,7 @@ block content
                 button.icon-btn.remove(type='button' aria-label='Eliminar disco' disabled)
                   i.fa-solid.fa-trash
             button.btn.btn-primary(type='submit') Iniciar rutina
-          form.tab-content#totalForm.hidden(data-tab='total' action=`/routines/${routine.id}/start` method='get')
+          form.tab-content#totalForm(data-tab='total' action=`/routines/${routine.id}/start` method='get' hidden)
             input(type='hidden' name='mode' value='total')
             .group
               label(for='totalDiscs') Total de discos por estación
@@ -36,9 +36,9 @@ block content
             const tabs=document.querySelectorAll('.tab-btn');
             const contents=document.querySelectorAll('.tab-content');
             tabs.forEach(btn=>btn.addEventListener('click',()=>{
-              tabs.forEach(b=>b.classList.remove('active'));
-              btn.classList.add('active');
-              contents.forEach(c=>c.classList.toggle('hidden', c.dataset.tab!==btn.dataset.tab));
+              const target=btn.dataset.tab;
+              tabs.forEach(b=>b.classList.toggle('active', b===btn));
+              contents.forEach(c=>{ c.hidden = c.dataset.tab !== target; });
             }));
             const container=document.querySelector('.disc-selects');
             function bind(row){
