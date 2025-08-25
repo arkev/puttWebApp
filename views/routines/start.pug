@@ -11,47 +11,53 @@ block content
         .tab-buttons
           button.tab-btn.active(type='button' data-tab='individual') Putts individuales
           button.tab-btn(type='button' data-tab='total') Putts totales
-        form#individualForm(action=`/routines/${routine.id}/start` method='get')
-          input(type='hidden' name='mode' value='individual')
-          p Selecciona discos a usar:
-          .disc-selects
+        .tab-contents
+          form.tab-content#individualForm(data-tab='individual' action=`/routines/${routine.id}/start` method='get')
+            input(type='hidden' name='mode' value='individual')
+            p Selecciona discos a usar:
+            .disc-selects
+              .disc-row
+                select(name='discIds' required)
+                  each disc in discs
+                    option(value=disc.id) #{disc.brand} #{disc.model}
+                button.icon-btn.add(type='button' aria-label='Agregar disco')
+                  i.fa-solid.fa-check
+                button.icon-btn.remove(type='button' aria-label='Eliminar disco' disabled)
+                  i.fa-solid.fa-trash
+            button.btn.btn-primary(type='submit') Iniciar rutina
+          form.tab-content#totalForm.hidden(data-tab='total' action=`/routines/${routine.id}/start` method='get')
+            input(type='hidden' name='mode' value='total')
             .group
-              select(name='discIds' required)
-                each disc in discs
-                  option(value=disc.id) #{disc.brand} #{disc.model}
-          button#addDisc(type='button' class='add-disc') + Añadir disco
-          button.btn.btn-primary(type='submit') Iniciar rutina
-        form#totalForm.hidden(action=`/routines/${routine.id}/start` method='get')
-          input(type='hidden' name='mode' value='total')
-          .group
-            label(for='totalDiscs') Total de discos por estación
-            input#totalDiscs(type='number' name='totalDiscs' min='1' value='1' required)
-          button.btn.btn-primary(type='submit') Iniciar rutina
+              label(for='totalDiscs') Total de discos por estación
+              input#totalDiscs(type='number' name='totalDiscs' min='1' value='1' required)
+            button.btn.btn-primary(type='submit') Iniciar rutina
         script.
           (function(){
             const tabs=document.querySelectorAll('.tab-btn');
-            const individualForm=document.getElementById('individualForm');
-            const totalForm=document.getElementById('totalForm');
+            const contents=document.querySelectorAll('.tab-content');
             tabs.forEach(btn=>btn.addEventListener('click',()=>{
               tabs.forEach(b=>b.classList.remove('active'));
               btn.classList.add('active');
-              if(btn.dataset.tab==='individual'){
-                individualForm.classList.remove('hidden');
-                totalForm.classList.add('hidden');
-              } else {
-                totalForm.classList.remove('hidden');
-                individualForm.classList.add('hidden');
-              }
+              contents.forEach(c=>c.classList.toggle('hidden', c.dataset.tab!==btn.dataset.tab));
             }));
-            const addBtn=document.getElementById('addDisc');
-            if(addBtn){
-              addBtn.addEventListener('click',()=>{
-                const container=document.querySelector('.disc-selects');
-                const first=container.querySelector('.group');
-                const clone=first.cloneNode(true);
-                container.appendChild(clone);
-              });
+            const container=document.querySelector('.disc-selects');
+            function bind(row){
+              row.querySelector('.add').addEventListener('click',()=>{ addRow(); });
+              row.querySelector('.remove').addEventListener('click',()=>{ row.remove(); updateRemove(); });
             }
+            function addRow(){
+              const row=container.querySelector('.disc-row').cloneNode(true);
+              row.querySelector('select').selectedIndex=0;
+              bind(row);
+              container.appendChild(row);
+              updateRemove();
+            }
+            function updateRemove(){
+              const rows=container.querySelectorAll('.disc-row');
+              rows.forEach(r=>{ r.querySelector('.remove').disabled=rows.length===1; });
+            }
+            bind(container.querySelector('.disc-row'));
+            updateRemove();
           })();
     else if mode=='individual'
       form#sessionForm(action=`/routines/${routine.id}/complete?mode=individual` method='post')
