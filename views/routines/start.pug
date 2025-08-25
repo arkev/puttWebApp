@@ -19,7 +19,7 @@ block content
               .disc-row
                 select(name='discIds' required)
                   each disc in discs
-                    option(value=disc.id) #{disc.brand} #{disc.model}
+                    option(value=disc.id) #{disc.alias || `${disc.brand} ${disc.model}`}
                 button.icon-btn.add(type='button' aria-label='Agregar disco')
                   i.fa-solid.fa-check
                 button.icon-btn.remove(type='button' aria-label='Eliminar disco' disabled)

@@ -228,6 +228,7 @@ app.post('/routines/:id/complete', (req, res) => {
   const routine = db.data.routines.find((r) => r.id === req.params.id);
   if (!routine) return res.redirect('/routines');
   const mode = req.query.mode;
+  let repeatUrl = `/routines/${routine.id}/start?mode=${mode}`;
   if (mode === 'individual') {
     let ids = req.body.discIds || [];
     if (!Array.isArray(ids)) ids = [ids];
@@ -251,6 +252,7 @@ app.post('/routines/:id/complete', (req, res) => {
       db.data.stats.circle2.attempts += attc2;
       db.data.stats.circle2.hits += hitc2;
     });
+    repeatUrl += ids.map(id => `&discIds=${id}`).join('');
   } else if (mode === 'total') {
     const totalDiscs = Number(req.body.totalDiscs) || 0;
     routine.stations.forEach((station, i) => {
@@ -264,9 +266,10 @@ app.post('/routines/:id/complete', (req, res) => {
         db.data.stats.circle2.hits += hits;
       }
     });
+    repeatUrl += `&totalDiscs=${totalDiscs}`;
   }
   db.write();
-  res.render('routines/result', { routine, activeTab: 'routines' });
+  res.render('routines/result', { routine, repeatUrl, activeTab: 'routines' });
 });
 
 // Stats
