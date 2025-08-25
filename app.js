@@ -22,7 +22,8 @@ const defaultData = {
     circle1: { hits: 0, attempts: 0 },
     circle2: { hits: 0, attempts: 0 }
   },
-  discStats: {}
+  discStats: {},
+  sessions: []
 };
 
 const db = new Low(adapter, defaultData);
@@ -30,6 +31,9 @@ const db = new Low(adapter, defaultData);
 async function initDB() {
   await db.read();
   db.data ||= defaultData;   // por si el archivo está vacío o no existe
+  db.data.sessions ||= [];
+  db.data.stats ||= { circle1: { hits: 0, attempts: 0 }, circle2: { hits: 0, attempts: 0 } };
+  db.data.discStats ||= {};
   await db.write();
 }
 
@@ -183,7 +187,7 @@ app.post('/routines/new', (req, res) => {
   let stations = req.body.stations || [];
   if (!Array.isArray(stations)) stations = [stations];
   stations = stations.map((d) => Number(d)).filter((n) => !isNaN(n) && n > 0);
-  const routine = { id: uuidv4(), name, stations };
+  const routine = { id: uuidv4(), name, stations, userId: req.clientId };
   db.data.routines.push(routine);
   db.write();
   res.redirect('/routines');
@@ -229,6 +233,7 @@ app.post('/routines/:id/complete', (req, res) => {
   if (!routine) return res.redirect('/routines');
   const mode = req.query.mode;
   let repeatUrl = `/routines/${routine.id}/start?mode=${mode}`;
+  const sessionStations = [];
   if (mode === 'individual') {
     let ids = req.body.discIds || [];
     if (!Array.isArray(ids)) ids = [ids];
@@ -252,12 +257,18 @@ app.post('/routines/:id/complete', (req, res) => {
       db.data.stats.circle2.attempts += attc2;
       db.data.stats.circle2.hits += hitc2;
     });
-    repeatUrl += ids.map(id => `&discIds=${id}`).join('');
+    routine.stations.forEach((station, i) => {
+      const hits = Number(req.body[`hitsStation_${i}`] || 0);
+      const attempts = Number(req.body[`attemptsStation_${i}`] || 0);
+      sessionStations.push({ distance: station, hits, attempts });
+    });
+    repeatUrl += ids.map((id) => `&discIds=${id}`).join('');
   } else if (mode === 'total') {
     const totalDiscs = Number(req.body.totalDiscs) || 0;
     routine.stations.forEach((station, i) => {
       const hits = Number(req.body[`hits_${i}`] || 0);
       const attempts = totalDiscs;
+      sessionStations.push({ distance: station, hits, attempts });
       if (station <= 10) {
         db.data.stats.circle1.attempts += attempts;
         db.data.stats.circle1.hits += hits;
@@ -268,6 +279,14 @@ app.post('/routines/:id/complete', (req, res) => {
     });
     repeatUrl += `&totalDiscs=${totalDiscs}`;
   }
+  db.data.sessions.push({
+    id: uuidv4(),
+    userId: req.clientId,
+    routineId: routine.id,
+    mode,
+    date: new Date().toISOString(),
+    stations: sessionStations,
+  });
   db.write();
   res.render('routines/result', { routine, repeatUrl, activeTab: 'routines' });
 });
@@ -280,10 +299,18 @@ app.get('/stats', (req, res) => {
 // Home (única)
 app.get('/', (req, res) => {
   const userId = req.clientId || 'local';
-  const routines = (db.data.routines || []).filter(r => r.userId === userId);
-  const sessions = (db.data.sessions || []).filter(s => s.userId === userId).slice(-5).reverse();
+  const allRoutines = db.data.routines || [];
+  const routines = allRoutines.filter(r => r.userId === userId);
+  const allSessions = (db.data.sessions || []).filter(s => s.userId === userId);
+  const sessions = allSessions.slice(-5).reverse();
 
-  const lastRoutine = routines[routines.length - 1] || null;
+  let lastRoutine = null;
+  if (allSessions.length) {
+    const last = allSessions[allSessions.length - 1];
+    lastRoutine = allRoutines.find(r => r.id === last.routineId) || null;
+  } else {
+    lastRoutine = routines[routines.length - 1] || allRoutines[allRoutines.length - 1] || null;
+  }
 
   const c1 = db.data.stats?.circle1 || { hits: 0, attempts: 0 };
   const c2 = db.data.stats?.circle2 || { hits: 0, attempts: 0 };
@@ -295,7 +322,7 @@ app.get('/', (req, res) => {
     kpis: {
       c1: pct(c1.hits, c1.attempts),
       c2: pct(c2.hits, c2.attempts),
-      sessionsCount: sessions.length,
+      sessionsCount: allSessions.length,
     },
     sessions,
     activeTab: 'home'

@@ -127,6 +127,7 @@
     }
   },
   "discStats": {},
+  "sessions": [],
   "manufacturers": [
     {
       "id": "innova",
