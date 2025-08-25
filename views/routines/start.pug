@@ -54,22 +54,89 @@ block content
             }
           })();
     else if mode=='individual'
-      form(action=`/routines/${routine.id}/complete?mode=individual` method='post')
-        each disc in discs
-          div
-            input(type='hidden' name='discIds' value=disc.id)
-            label #{disc.brand} #{disc.model}
-            br
-            |  C1 intentos:
-            input(type='number' name=`attc1_${disc.id}` min='0' value='0')
-            |  C1 aciertos:
-            input(type='number' name=`hitc1_${disc.id}` min='0' value='0')
-            br
-            |  C2 intentos:
-            input(type='number' name=`attc2_${disc.id}` min='0' value='0')
-            |  C2 aciertos:
-            input(type='number' name=`hitc2_${disc.id}` min='0' value='0')
-        button.btn.btn-primary(type='submit') Guardar resultados
+      form#sessionForm(action=`/routines/${routine.id}/complete?mode=individual` method='post')
+        .station-header
+          h2#stationTitle Estación
+          .totals
+            span Sesión: 
+              b#sessionTotal 0/0
+            span Estación: 
+              b#stationTotal 0/0
+        .disc-list
+          each disc in discs
+            label.disc-row
+              .name
+                if disc.color
+                  .disc-color(style=`background:${disc.color}`)
+                else
+                  .disc-color
+                span #{disc.alias || `${disc.brand} ${disc.model}`}
+              .switch
+                input(type='checkbox' data-id=disc.id)
+                span.slider
+        .nav-buttons
+          button#backBtn.btn(type='button' disabled) Atrás
+          button#nextBtn.btn.btn-primary(type='button') Siguiente
+        script.
+          (function(){
+            const stations=!{JSON.stringify(routine.stations)};
+            const discs=!{JSON.stringify(discs)};
+            const inputs=Array.from(document.querySelectorAll('.disc-row input'));
+            const stationTitle=document.getElementById('stationTitle');
+            const sessionTotal=document.getElementById('sessionTotal');
+            const stationTotal=document.getElementById('stationTotal');
+            const backBtn=document.getElementById('backBtn');
+            const nextBtn=document.getElementById('nextBtn');
+            const form=document.getElementById('sessionForm');
+            const results=stations.map(()=>({}));
+            let current=0;
+            function render(idx){
+              current=idx;
+              stationTitle.textContent=`Estación ${idx+1}/${stations.length} • ${stations[idx]} m`;
+              inputs.forEach(inp=>{inp.checked=results[idx][inp.dataset.id]||false;});
+              backBtn.disabled=idx===0;
+              nextBtn.textContent=idx===stations.length-1? 'Finalizar':`Siguiente (${idx+2}/${stations.length})`;
+              updateTotals();
+            }
+            function save(){
+              inputs.forEach(inp=>{results[current][inp.dataset.id]=inp.checked;});
+            }
+            function updateTotals(){
+              let stationHits=0;
+              inputs.forEach(inp=>{if(inp.checked) stationHits++;});
+              stationTotal.textContent=`${stationHits}/${inputs.length}`;
+              let totalHits=stationHits;
+              results.forEach((res,idx)=>{
+                if(idx===current) return;
+                discs.forEach(d=>{ if(res[d.id]) totalHits++; });
+              });
+              const totalAttempts=discs.length*stations.length;
+              sessionTotal.textContent=`${totalHits}/${totalAttempts}`;
+            }
+            inputs.forEach(inp=>inp.addEventListener('change',updateTotals));
+            backBtn.addEventListener('click',()=>{ save(); render(current-1); });
+            nextBtn.addEventListener('click',()=>{
+              save();
+              if(current===stations.length-1){
+                discs.forEach(d=>{
+                  let attc1=0,hitc1=0,attc2=0,hitc2=0;
+                  stations.forEach((dist,i)=>{
+                    const hit=results[i][d.id]?1:0;
+                    if(dist<=10){attc1++; hitc1+=hit;} else {attc2++; hitc2+=hit;}
+                  });
+                  form.insertAdjacentHTML('beforeend',`<input type="hidden" name="discIds" value="${d.id}">`+
+                    `<input type="hidden" name="attc1_${d.id}" value="${attc1}">`+
+                    `<input type="hidden" name="hitc1_${d.id}" value="${hitc1}">`+
+                    `<input type="hidden" name="attc2_${d.id}" value="${attc2}">`+
+                    `<input type="hidden" name="hitc2_${d.id}" value="${hitc2}">`);
+                });
+                form.submit();
+              } else {
+                render(current+1);
+              }
+            });
+            render(0);
+          })();
     else if mode=='total'
       form(action=`/routines/${routine.id}/complete?mode=total` method='post')
         each station, i in routine.stations

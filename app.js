@@ -217,7 +217,9 @@ app.get('/routines/:id/start', (req, res) => {
   const totalDiscs = req.query.totalDiscs;
   if (mode === 'individual' && discIds) {
     const ids = Array.isArray(discIds) ? discIds : [discIds];
-    discs = discs.filter((d) => ids.includes(d.id));
+    discs = ids
+      .map(id => db.data.discs.find(d => d.id === id))
+      .filter(Boolean);
   }
   res.render('routines/start', { routine, mode, discs, totalDiscs, activeTab: 'routines' });
 });
