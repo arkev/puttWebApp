@@ -214,7 +214,7 @@ app.get('/routines/:id/start', (req, res) => {
   const mode = req.query.mode;
   let discs = db.data.discs;
   const discIds = req.query.discIds;
-  const totalDiscs = req.query.totalDiscs;
+  const totalDiscs = Number(req.query.totalDiscs) || 0;
   if (mode === 'individual' && discIds) {
     const ids = Array.isArray(discIds) ? discIds : [discIds];
     discs = ids
@@ -252,9 +252,10 @@ app.post('/routines/:id/complete', (req, res) => {
       db.data.stats.circle2.hits += hitc2;
     });
   } else if (mode === 'total') {
+    const totalDiscs = Number(req.body.totalDiscs) || 0;
     routine.stations.forEach((station, i) => {
-      const attempts = Number(req.body[`attempts_${i}`] || 0);
       const hits = Number(req.body[`hits_${i}`] || 0);
+      const attempts = totalDiscs;
       if (station <= 10) {
         db.data.stats.circle1.attempts += attempts;
         db.data.stats.circle1.hits += hits;

@@ -138,14 +138,15 @@ block content
             render(0);
           })();
     else if mode=='total'
-      form(action=`/routines/${routine.id}/complete?mode=total` method='post')
-        each station, i in routine.stations
-          div
-            label Estación #{i+1} (#{station} m)
-            |  Putts:
-            input(type='number' name=`attempts_${i}` min='0' value=totalDiscs || 0)
-            |  Aciertos:
-            input(type='number' name=`hits_${i}` min='0' value='0')
+      form#totalSessionForm(action=`/routines/${routine.id}/complete?mode=total` method='post')
+        input(type='hidden' name='totalDiscs' value=totalDiscs)
+        .station-list
+          each station, i in routine.stations
+            .station-row
+              span Estación #{i+1} • #{station} m
+              select(name=`hits_${i}`)
+                - for (var n = 0; n <= totalDiscs; n++)
+                  option(value=n) #{n}
         button.btn.btn-primary(type='submit') Guardar resultados
     .bottom-nav
       a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
