@@ -7,8 +7,13 @@ block content
         i.fa-solid.fa-xmark
       h1 Resultados guardados
     p ¿Deseas repetir la rutina?
-    a.btn.btn-primary(href=`/routines/${routine.id}/start?mode=total`) Repetir
-    a.btn.btn-primary(href='/') Salir
+    .action-buttons
+      a.btn.btn-primary(href=repeatUrl)
+        i.fa-solid.fa-repeat
+        span Repetir
+      a.btn.btn-primary(href='/')
+        i.fa-solid.fa-arrow-right-from-bracket
+        span Salir
     .bottom-nav
       a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
         i.fa-solid.fa-house

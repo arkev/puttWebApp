@@ -23,7 +23,7 @@ block content
               .stations
                 each d in r.stations
                   .badge #{d} m
-            a.btn-primary(href=`/routines/${r.id}/start?mode=total`)
+            a.btn-primary(href=`/routines/${r.id}/start`)
               i.fa-solid.fa-play
               |  Iniciar
     else

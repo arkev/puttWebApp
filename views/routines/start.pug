@@ -7,45 +7,165 @@ block content
         i.fa-solid.fa-xmark
       h1 Iniciar rutina #{routine.name}
     if !mode
-      form(action=`/routines/${routine.id}/start` method='get')
-        p Selecciona modalidad:
-        div
-          label
-            input(type='radio' name='mode' value='individual')
-            | Putts individuales
-        div
-          label
-            input(type='radio' name='mode' value='total')
-            | Putts totales
-        button.btn.btn-primary(type='submit') Continuar
+      .mode-tabs
+        .tab-buttons
+          button.tab-btn.active(type='button' data-tab='individual') Putts individuales
+          button.tab-btn(type='button' data-tab='total') Putts totales
+        .tab-contents
+          form.tab-content#individualForm(data-tab='individual' action=`/routines/${routine.id}/start` method='get')
+            input(type='hidden' name='mode' value='individual')
+            p Selecciona discos a usar:
+            .disc-selects
+              .disc-row
+                select(name='discIds' required)
+                  each disc in discs
+                    option(value=disc.id) #{disc.alias || `${disc.brand} ${disc.model}`}
+                button.icon-btn.add(type='button' aria-label='Agregar disco')
+                  i.fa-solid.fa-check
+                button.icon-btn.remove(type='button' aria-label='Eliminar disco' disabled)
+                  i.fa-solid.fa-trash
+            button.btn.btn-primary(type='submit') Iniciar rutina
+          form.tab-content#totalForm(data-tab='total' action=`/routines/${routine.id}/start` method='get' hidden)
+            input(type='hidden' name='mode' value='total')
+            .group
+              label(for='totalDiscs') Total de discos por estación
+              input#totalDiscs(type='number' name='totalDiscs' min='1' value='1' required)
+            button.btn.btn-primary(type='submit') Iniciar rutina
+        script.
+          (function(){
+            const tabs=document.querySelectorAll('.tab-btn');
+            const contents=document.querySelectorAll('.tab-content');
+            tabs.forEach(btn=>btn.addEventListener('click',()=>{
+              const target=btn.dataset.tab;
+              tabs.forEach(b=>b.classList.toggle('active', b===btn));
+              contents.forEach(c=>{ c.hidden = c.dataset.tab !== target; });
+            }));
+            const container=document.querySelector('.disc-selects');
+            function bind(row){
+              row.querySelector('.add').addEventListener('click',()=>{ addRow(); });
+              row.querySelector('.remove').addEventListener('click',()=>{ row.remove(); updateRemove(); });
+            }
+            function addRow(){
+              const row=container.querySelector('.disc-row').cloneNode(true);
+              row.querySelector('select').selectedIndex=0;
+              bind(row);
+              container.appendChild(row);
+              updateRemove();
+            }
+            function updateRemove(){
+              const rows=container.querySelectorAll('.disc-row');
+              rows.forEach(r=>{ r.querySelector('.remove').disabled=rows.length===1; });
+            }
+            bind(container.querySelector('.disc-row'));
+            updateRemove();
+          })();
     else if mode=='individual'
-      form(action=`/routines/${routine.id}/complete?mode=individual` method='post')
-        p Selecciona discos y registra resultados por círculo.
-        each disc in discs
-          div
-            label
-              input(type='checkbox' name='discIds' value=disc.id)
-              | #{disc.brand} #{disc.model}
-            br
-            |  C1 intentos:
-            input(type='number' name=`attc1_${disc.id}` min='0' value='0')
-            |  C1 aciertos:
-            input(type='number' name=`hitc1_${disc.id}` min='0' value='0')
-            br
-            |  C2 intentos:
-            input(type='number' name=`attc2_${disc.id}` min='0' value='0')
-            |  C2 aciertos:
-            input(type='number' name=`hitc2_${disc.id}` min='0' value='0')
-        button.btn.btn-primary(type='submit') Guardar resultados
+      form#sessionForm(action=`/routines/${routine.id}/complete?mode=individual` method='post')
+        .station-header
+          h2#stationTitle Estación
+          .totals
+            span Sesión: 
+              b#sessionTotal 0/0
+            span Estación: 
+              b#stationTotal 0/0
+        .disc-list
+          each disc, idx in discs
+            label.disc-row
+              .name
+                if disc.color
+                  .disc-color(style=`background:${disc.color}`)
+                else
+                  .disc-color
+                span #{disc.alias || `${disc.brand} ${disc.model}`}
+              .switch
+                input(type='checkbox' data-id=disc.id data-index=idx)
+                span.slider
+        .nav-buttons
+          button#backBtn.btn(type='button' disabled) Atrás
+          button#nextBtn.btn.btn-primary(type='button') Siguiente
+        script.
+          (function(){
+            const stations=!{JSON.stringify(routine.stations)};
+            const discs=!{JSON.stringify(discs)};
+            const inputs=Array.from(document.querySelectorAll('.disc-row input'));
+            const stationTitle=document.getElementById('stationTitle');
+            const sessionTotal=document.getElementById('sessionTotal');
+            const stationTotal=document.getElementById('stationTotal');
+            const backBtn=document.getElementById('backBtn');
+            const nextBtn=document.getElementById('nextBtn');
+            const form=document.getElementById('sessionForm');
+            const results=stations.map(()=>Array(discs.length).fill(false));
+            let current=0;
+            function render(idx){
+              current=idx;
+              stationTitle.textContent=`Estación ${idx+1}/${stations.length} • ${stations[idx]} m`;
+              inputs.forEach(inp=>{inp.checked=results[idx][Number(inp.dataset.index)];});
+              backBtn.disabled=idx===0;
+              nextBtn.textContent=idx===stations.length-1? 'Finalizar':`Siguiente (${idx+2}/${stations.length})`;
+              updateTotals();
+            }
+            function save(){
+              inputs.forEach(inp=>{results[current][Number(inp.dataset.index)]=inp.checked;});
+            }
+            function updateTotals(){
+              const stationHits=results[current].filter(Boolean).length;
+              stationTotal.textContent=`${stationHits}/${discs.length}`;
+              let totalHits=0;
+              results.forEach(res=>{ res.forEach(v=>{ if(v) totalHits++; }); });
+              const totalAttempts=discs.length*stations.length;
+              sessionTotal.textContent=`${totalHits}/${totalAttempts}`;
+            }
+            inputs.forEach(inp=>inp.addEventListener('change',updateTotals));
+            backBtn.addEventListener('click',()=>{ save(); render(current-1); });
+            nextBtn.addEventListener('click',()=>{
+              save();
+              if(current===stations.length-1){
+                const perDisc={};
+                discs.forEach((d,idx)=>{
+                  let attc1=0,hitc1=0,attc2=0,hitc2=0;
+                  stations.forEach((dist,i)=>{
+                    const hit=results[i][idx]?1:0;
+                    if(dist<=10){attc1++; hitc1+=hit;} else {attc2++; hitc2+=hit;}
+                  });
+                  if(!perDisc[d.id]) perDisc[d.id]={attc1:0,hitc1:0,attc2:0,hitc2:0};
+                  perDisc[d.id].attc1+=attc1;
+                  perDisc[d.id].hitc1+=hitc1;
+                  perDisc[d.id].attc2+=attc2;
+                  perDisc[d.id].hitc2+=hitc2;
+                });
+                discs.forEach(d=>{
+                  form.insertAdjacentHTML('beforeend',`<input type="hidden" name="discIds" value="${d.id}">`);
+                });
+                Object.keys(perDisc).forEach(id=>{
+                  const st=perDisc[id];
+                  form.insertAdjacentHTML('beforeend',
+                    `<input type="hidden" name="attc1_${id}" value="${st.attc1}">`+
+                    `<input type="hidden" name="hitc1_${id}" value="${st.hitc1}">`+
+                    `<input type="hidden" name="attc2_${id}" value="${st.attc2}">`+
+                    `<input type="hidden" name="hitc2_${id}" value="${st.hitc2}">`);
+                });
+                stations.forEach((dist,i)=>{
+                  const hits=results[i].filter(Boolean).length;
+                  form.insertAdjacentHTML('beforeend',`<input type="hidden" name="hitsStation_${i}" value="${hits}">`+
+                    `<input type="hidden" name="attemptsStation_${i}" value="${discs.length}">`);
+                });
+                form.submit();
+              } else {
+                render(current+1);
+              }
+            });
+            render(0);
+          })();
     else if mode=='total'
-      form(action=`/routines/${routine.id}/complete?mode=total` method='post')
-        each station, i in routine.stations
-          div
-            label Estación #{i+1} (#{station} m)
-            |  Putts:
-            input(type='number' name=`attempts_${i}` min='0' value='0')
-            |  Aciertos:
-            input(type='number' name=`hits_${i}` min='0' value='0')
+      form#totalSessionForm(action=`/routines/${routine.id}/complete?mode=total` method='post')
+        input(type='hidden' name='totalDiscs' value=totalDiscs)
+        .station-list
+          each station, i in routine.stations
+            .station-row
+              span Estación #{i+1} • #{station} m
+              select(name=`hits_${i}`)
+                - for (var n = 0; n <= totalDiscs; n++)
+                  option(value=n) #{n}
         button.btn.btn-primary(type='submit') Guardar resultados
     .bottom-nav
       a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
