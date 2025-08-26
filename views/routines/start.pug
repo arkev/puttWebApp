@@ -133,9 +133,12 @@ block content
                   perDisc[d.id].attc2+=attc2;
                   perDisc[d.id].hitc2+=hitc2;
                 });
+                discs.forEach(d=>{
+                  form.insertAdjacentHTML('beforeend',`<input type="hidden" name="discIds" value="${d.id}">`);
+                });
                 Object.keys(perDisc).forEach(id=>{
                   const st=perDisc[id];
-                  form.insertAdjacentHTML('beforeend',`<input type="hidden" name="discIds" value="${id}">`+
+                  form.insertAdjacentHTML('beforeend',
                     `<input type="hidden" name="attc1_${id}" value="${st.attc1}">`+
                     `<input type="hidden" name="hitc1_${id}" value="${st.hitc1}">`+
                     `<input type="hidden" name="attc2_${id}" value="${st.attc2}">`+

@@ -237,7 +237,8 @@ app.post('/routines/:id/complete', (req, res) => {
   if (mode === 'individual') {
     let ids = req.body.discIds || [];
     if (!Array.isArray(ids)) ids = [ids];
-    ids.forEach((id) => {
+    const uniqueIds = [...new Set(ids)];
+    uniqueIds.forEach((id) => {
       const attc1 = Number(req.body[`attc1_${id}`] || 0);
       const hitc1 = Number(req.body[`hitc1_${id}`] || 0);
       const attc2 = Number(req.body[`attc2_${id}`] || 0);
