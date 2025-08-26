@@ -118,16 +118,193 @@
   ],
   "stats": {
     "circle1": {
-      "hits": 0,
-      "attempts": 0
+      "hits": 67,
+      "attempts": 96
     },
     "circle2": {
-      "hits": 0,
-      "attempts": 0
+      "hits": 10,
+      "attempts": 30
     }
   },
-  "discStats": {},
-  "sessions": [],
+  "discStats": {
+    "fc1716ba-15bf-4a94-86e8-a91de059c296": {
+      "circle1": {
+        "hits": 47,
+        "attempts": 60
+      },
+      "circle2": {
+        "hits": 10,
+        "attempts": 30
+      }
+    }
+  },
+  "sessions": [
+    {
+      "id": "2b3ae571-64f6-4330-9951-21d9bcfb62c7",
+      "userId": "62e27050-9d15-4d9f-b7b3-b4c958d86b53",
+      "routineId": "bcee9e25-86f5-413a-b4b8-2e1d916ea947",
+      "mode": "individual",
+      "date": "2025-08-26T06:26:33.974Z",
+      "stations": [
+        {
+          "distance": 5,
+          "hits": 5,
+          "attempts": 5
+        },
+        {
+          "distance": 7,
+          "hits": 4,
+          "attempts": 5
+        },
+        {
+          "distance": 9,
+          "hits": 3,
+          "attempts": 5
+        }
+      ]
+    },
+    {
+      "id": "6ccc69be-1f40-4658-a0df-5b08a9350ddc",
+      "userId": "62e27050-9d15-4d9f-b7b3-b4c958d86b53",
+      "routineId": "bcee9e25-86f5-413a-b4b8-2e1d916ea947",
+      "mode": "individual",
+      "date": "2025-08-26T06:26:59.234Z",
+      "stations": [
+        {
+          "distance": 5,
+          "hits": 4,
+          "attempts": 5
+        },
+        {
+          "distance": 7,
+          "hits": 3,
+          "attempts": 5
+        },
+        {
+          "distance": 9,
+          "hits": 2,
+          "attempts": 5
+        }
+      ]
+    },
+    {
+      "id": "584e413f-d273-48a1-a907-eb3c3686b88e",
+      "userId": "62e27050-9d15-4d9f-b7b3-b4c958d86b53",
+      "routineId": "fec828f4-9670-4396-b008-041c3b1bcf47",
+      "mode": "individual",
+      "date": "2025-08-26T06:28:05.274Z",
+      "stations": [
+        {
+          "distance": 3,
+          "hits": 5,
+          "attempts": 5
+        },
+        {
+          "distance": 6,
+          "hits": 4,
+          "attempts": 5
+        },
+        {
+          "distance": 9,
+          "hits": 3,
+          "attempts": 5
+        },
+        {
+          "distance": 12,
+          "hits": 2,
+          "attempts": 5
+        },
+        {
+          "distance": 15,
+          "hits": 1,
+          "attempts": 5
+        },
+        {
+          "distance": 18,
+          "hits": 1,
+          "attempts": 5
+        }
+      ]
+    },
+    {
+      "id": "d4eaf5c8-321e-43f3-91ee-5c8a93b693a4",
+      "userId": "62e27050-9d15-4d9f-b7b3-b4c958d86b53",
+      "routineId": "fec828f4-9670-4396-b008-041c3b1bcf47",
+      "mode": "individual",
+      "date": "2025-08-26T06:28:25.142Z",
+      "stations": [
+        {
+          "distance": 3,
+          "hits": 5,
+          "attempts": 5
+        },
+        {
+          "distance": 6,
+          "hits": 5,
+          "attempts": 5
+        },
+        {
+          "distance": 9,
+          "hits": 4,
+          "attempts": 5
+        },
+        {
+          "distance": 12,
+          "hits": 3,
+          "attempts": 5
+        },
+        {
+          "distance": 15,
+          "hits": 2,
+          "attempts": 5
+        },
+        {
+          "distance": 18,
+          "hits": 1,
+          "attempts": 5
+        }
+      ]
+    },
+    {
+      "id": "cbbe6a50-1978-4e5e-adc5-6d6026aa7de0",
+      "userId": "62e27050-9d15-4d9f-b7b3-b4c958d86b53",
+      "routineId": "24423f7a-da54-4e01-89da-ab0ea772f3b0",
+      "mode": "total",
+      "date": "2025-08-26T06:33:54.980Z",
+      "stations": [
+        {
+          "distance": 3,
+          "hits": 6,
+          "attempts": 6
+        },
+        {
+          "distance": 5,
+          "hits": 3,
+          "attempts": 6
+        },
+        {
+          "distance": 7,
+          "hits": 4,
+          "attempts": 6
+        },
+        {
+          "distance": 10,
+          "hits": 1,
+          "attempts": 6
+        },
+        {
+          "distance": 7,
+          "hits": 3,
+          "attempts": 6
+        },
+        {
+          "distance": 8,
+          "hits": 3,
+          "attempts": 6
+        }
+      ]
+    }
+  ],
   "manufacturers": [
     {
       "id": "innova",
