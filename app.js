@@ -155,6 +155,15 @@ app.post('/discs/:id/edit', upload.single('image'), (req, res) => {
   res.redirect('/discs');
 });
 
+app.post('/discs/:id/delete', (req, res) => {
+  db.data.discs = db.data.discs.filter(d => d.id !== req.params.id);
+  if (db.data.discStats) {
+    delete db.data.discStats[req.params.id];
+  }
+  db.write();
+  res.redirect('/discs');
+});
+
 app.get('/discs/:id', (req, res) => {
   const disc = db.data.discs.find((d) => d.id === req.params.id);
   if (!disc) return res.redirect('/discs');
@@ -208,6 +217,12 @@ app.post('/routines/:id/edit', (req, res) => {
   if (!Array.isArray(stations)) stations = [stations];
   stations = stations.map((d) => Number(d)).filter((n) => !isNaN(n) && n > 0);
   db.data.routines[idx] = { ...db.data.routines[idx], name, stations };
+  db.write();
+  res.redirect('/routines');
+});
+
+app.post('/routines/:id/delete', (req, res) => {
+  db.data.routines = db.data.routines.filter(r => r.id !== req.params.id);
   db.write();
   res.redirect('/routines');
 });

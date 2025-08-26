@@ -14,8 +14,12 @@ block content
           .card
             .top
               .meta #{r.stations.length} estaciones
-              a.edit(href=`/routines/${r.id}/edit` aria-label="Editar")
-                i.fa-solid.fa-pencil
+              .top-actions
+                a.edit(href=`/routines/${r.id}/edit` aria-label="Editar")
+                  i.fa-solid.fa-pencil
+                form(method="post" action=`/routines/${r.id}/delete` onsubmit="return confirm('¿Seguro que deseas eliminar esta rutina?');")
+                  button.delete(type="submit" aria-label="Eliminar")
+                    i.fa-solid.fa-trash
             .main
               .info
                 h3= r.name

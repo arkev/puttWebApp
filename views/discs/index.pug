@@ -17,8 +17,12 @@ block content
                 label.chk
                   input(type="checkbox" name="ids" value=d.id)
                   span Comparar
-                a.edit(href=`/discs/${d.id}/edit` aria-label="Editar")
-                  i.fa-solid.fa-pencil
+                .top-actions
+                  a.edit(href=`/discs/${d.id}/edit` aria-label="Editar")
+                    i.fa-solid.fa-pencil
+                  form(method="post" action=`/discs/${d.id}/delete` onsubmit="return confirm('¿Seguro que deseas eliminar este disco?');")
+                    button.delete(type="submit" aria-label="Eliminar")
+                      i.fa-solid.fa-trash
               .main
                 .img
                   if d.image
