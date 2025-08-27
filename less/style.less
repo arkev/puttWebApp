@@ -134,7 +134,6 @@ form div {
 .item .title { font-weight:700; }
 .item .meta { color:var(--muted); font-size:12px; margin-top:2px; }
 .pill { background:#0c2024; color:#9bd7c9; border:1px solid #17343a; border-radius:999px; padding:6px 10px; font-weight:800; min-width:48px; text-align:center; }
-
 .bottom-nav { position:fixed; left:0; right:0; bottom:0; height:68px;
   background:rgba(12,16,22,.85); backdrop-filter:blur(8px); border-top:1px solid var(--border);
   display:flex; justify-content:space-around; align-items:center; z-index:50;
@@ -154,13 +153,23 @@ form div {
 .card { background:#161c25; border:1px solid #1c2733; border-radius:12px; padding:12px; color:#eaf2fb; }
 .top { display:flex; justify-content:space-between; align-items:center; }
 .chk { font-size:12px; color:#8fa1b3; display:flex; align-items:center; gap:6px; }
+.top-actions { display:flex; align-items:center; gap:8px; }
+.top-actions form { margin:0; }
 .edit { color:#8fa1b3; text-decoration:none; font-size:16px; }
+.delete { background:none; border:0; color:#e74c3c; font-size:16px; cursor:pointer; }
 .main { display:flex; gap:12px; align-items:center; }
 .img img, .ph-img { width:64px; height:64px; border-radius:50%; object-fit:cover; background:#0f2430; border:1px solid #1a3642; }
 .info h3 { margin:0 0 4px; font-size:16px; }
 .meta, .flight { color:#8fa1b3; font-size:12px; }
 .stats { margin-top:8px; border-top:1px solid #1c2733; padding-top:8px; font-size:13px; }
-.stats .row { display:flex; justify-content:space-between; padding:2px 0; }
+.stats .row { 
+  display:flex; 
+  justify-content:space-between; 
+  padding:2px 0;
+ }
+div.home > div.hero > div > div.top{
+  flex-direction: column;
+}
 .actions { position:sticky; bottom:84px; display:flex; justify-content:center; margin-top:8px; }
 .btn { background:#18b2c3; color:#001018; font-weight:800; border:0; padding:10px 16px; border-radius:10px; }
 .btn:disabled { opacity:.5; }
