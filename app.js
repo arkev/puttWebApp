@@ -170,19 +170,31 @@ app.get('/discs/compare', (req, res) => {
   const { start, end } = req.query;
   const parseDate = (s, isEnd = false) => {
     if (!s) return null;
-    const d = new Date(s);
-    if (isEnd) d.setHours(23, 59, 59, 999);
+    // construct date in local time to avoid timezone shifts
+    const d = new Date(`${s}T${isEnd ? '23:59:59.999' : '00:00:00'}`);
     return isNaN(d) ? null : d;
   };
   const startDate = parseDate(start);
   const endDate = parseDate(end, true);
+  const statsByDisc = {};
+  // seed from persisted aggregated stats when no date filter is applied
+  if (!startDate && !endDate) {
+    ids.forEach((id) => {
+      const st = db.data.discStats?.[id];
+      if (st) {
+        statsByDisc[id] = {
+          c1: { h: st.circle1?.hits || 0, a: st.circle1?.attempts || 0 },
+          c2: { h: st.circle2?.hits || 0, a: st.circle2?.attempts || 0 },
+        };
+      }
+    });
+  }
   const relevantSessions = (db.data.sessions || []).filter((s) => {
     const d = new Date(s.date);
     if (startDate && d < startDate) return false;
     if (endDate && d > endDate) return false;
     return true;
   });
-  const statsByDisc = {};
   relevantSessions.forEach((s) => {
     if (!Array.isArray(s.discs)) return;
     s.discs.forEach((ds) => {
