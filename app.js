@@ -164,17 +164,6 @@ app.post('/discs/:id/delete', (req, res) => {
   res.redirect('/discs');
 });
 
-app.get('/discs/:id', (req, res) => {
-  const disc = db.data.discs.find((d) => d.id === req.params.id);
-  if (!disc) return res.redirect('/discs');
-  if (typeof disc.flight === 'string') {
-    const [speed, glide, turn, fade] = disc.flight.split('|');
-    disc.flight = { speed, glide, turn, fade };
-  }
-  const stats = db.data.discStats[disc.id];
-  res.render('discs/show', { disc, stats });
-});
-
 app.get('/discs/compare', (req, res) => {
   let ids = req.query.ids || [];
   if (!Array.isArray(ids)) ids = [ids];
@@ -224,6 +213,17 @@ app.get('/discs/compare', (req, res) => {
       };
     });
   res.render('discs/compare', { discs, start, end, ids });
+});
+
+app.get('/discs/:id', (req, res) => {
+  const disc = db.data.discs.find((d) => d.id === req.params.id);
+  if (!disc) return res.redirect('/discs');
+  if (typeof disc.flight === 'string') {
+    const [speed, glide, turn, fade] = disc.flight.split('|');
+    disc.flight = { speed, glide, turn, fade };
+  }
+  const stats = db.data.discStats[disc.id];
+  res.render('discs/show', { disc, stats });
 });
 
 // Routines
