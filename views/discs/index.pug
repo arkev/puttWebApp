@@ -20,9 +20,8 @@ block content
                 .top-actions
                   a.edit(href=`/discs/${d.id}/edit` aria-label="Editar")
                     i.fa-solid.fa-pencil
-                  form(method="post" action=`/discs/${d.id}/delete` onsubmit="return confirm('¿Seguro que deseas eliminar este disco?');")
-                    button.delete(type="submit" aria-label="Eliminar")
-                      i.fa-solid.fa-trash
+                  button.delete(type="submit" form=`del-${d.id}` aria-label="Eliminar")
+                    i.fa-solid.fa-trash
               .main
                 .img
                   if d.image
@@ -46,6 +45,8 @@ block content
                   .val #{d.stats.c2.pct}% (#{d.stats.c2.h}/#{d.stats.c2.a})
         .actions
           button.btn(type="submit" id="btnCompare" disabled) Comparar seleccionados
+      each d in discs
+        form(id=`del-${d.id}` method="post" action=`/discs/${d.id}/delete` onsubmit="return confirm('¿Seguro que deseas eliminar este disco?');")
     else
       p No tienes discos todavía.
     .bottom-nav
