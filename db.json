@@ -2,7 +2,7 @@
   "discs": [
     {
       "id": "fc1716ba-15bf-4a94-86e8-a91de059c296",
-      "brand": "Innova (Innova Champion Discs)",
+      "brand": "Innova Champion Discs",
       "model": "Birdie",
       "plastic": "DX",
       "weight": "166",
@@ -17,68 +17,20 @@
       "alias": "Birdie "
     },
     {
-      "id": "99bbde97-9b7e-46c0-9c63-9851cc999b65",
-      "alias": "Venenoso",
-      "brand": "Discraft",
-      "model": "Venom",
-      "plastic": "Esp",
-      "weight": "174",
-      "color": "#00d7d6",
+      "id": "a4516ca5-a1cb-41eb-a58f-d44ddc13db38",
+      "alias": "Fuego",
+      "brand": "Shaman Discs Golf",
+      "model": "Fuego",
+      "plastic": "Base",
+      "weight": "166",
+      "color": "#004f77",
       "flight": {
-        "speed": "12",
-        "glide": "5",
-        "turn": "0",
-        "fade": "3"
-      },
-      "image": "9bd33872a60bebc2bff1807602573bed"
-    },
-    {
-      "id": "e31fe364-44a8-431e-b053-c28fe45f239a",
-      "alias": "F Model",
-      "brand": "Prodigy Disc",
-      "model": "F Model S",
-      "plastic": "Base Grip",
-      "weight": "144",
-      "color": "#eb4d3d",
-      "flight": {
-        "speed": "10",
-        "glide": "5",
-        "turn": "1",
-        "fade": "3"
-      },
-      "image": "08bbb439de24eb8a6f0f0cc45a979e61"
-    },
-    {
-      "id": "3ce0fc98-bfda-494d-8cbd-11b7714dd3bf",
-      "alias": "Valkyrie ",
-      "brand": "Innova (Innova Champion Discs)",
-      "model": "Valkyrie ",
-      "plastic": "DX",
-      "weight": "147",
-      "color": "#f60063",
-      "flight": {
-        "speed": "9",
+        "speed": "3",
         "glide": "4",
-        "turn": "-2",
-        "fade": "2"
-      },
-      "image": "b240399906ec2fc6ea9853e7d03ee53e"
-    },
-    {
-      "id": "e722a5ad-f0bb-4277-8f2a-0a7ee40a4f36",
-      "alias": "Radiactivo ",
-      "brand": "Discraft",
-      "model": "Zone",
-      "plastic": "Esp",
-      "weight": "179",
-      "color": "#f7ce46",
-      "flight": {
-        "speed": "4",
-        "glide": "3",
         "turn": "0",
-        "fade": "3"
+        "fade": "1"
       },
-      "image": "ed6ef418738ba804f97a7159cbea322e"
+      "image": "51696173cbf29bf38edb35e5cd7a7bac"
     }
   ],
   "routines": [
@@ -104,8 +56,8 @@
       ]
     },
     {
-      "id": "fec828f4-9670-4396-b008-041c3b1bcf47",
-      "name": "C1 y 2",
+      "id": "6beb6509-1134-4f67-aecf-09cd11f63fc3",
+      "name": "C1 y C2",
       "stations": [
         3,
         6,
@@ -113,13 +65,14 @@
         12,
         15,
         18
-      ]
+      ],
+      "userId": "d5a84d68-8f45-4bc5-a2ba-064d6ab0c3ed"
     }
   ],
   "stats": {
     "circle1": {
-      "hits": 67,
-      "attempts": 96
+      "hits": 88,
+      "attempts": 126
     },
     "circle2": {
       "hits": 10,
@@ -129,8 +82,8 @@
   "discStats": {
     "fc1716ba-15bf-4a94-86e8-a91de059c296": {
       "circle1": {
-        "hits": 47,
-        "attempts": 60
+        "hits": 68,
+        "attempts": 90
       },
       "circle2": {
         "hits": 10,
@@ -303,12 +256,60 @@
           "attempts": 6
         }
       ]
+    },
+    {
+      "id": "f13d629f-2229-452e-932e-c5fa7ed672d1",
+      "userId": "d5a84d68-8f45-4bc5-a2ba-064d6ab0c3ed",
+      "routineId": "bcee9e25-86f5-413a-b4b8-2e1d916ea947",
+      "mode": "individual",
+      "date": "2025-08-26T22:05:24.107Z",
+      "stations": [
+        {
+          "distance": 5,
+          "hits": 5,
+          "attempts": 5
+        },
+        {
+          "distance": 7,
+          "hits": 4,
+          "attempts": 5
+        },
+        {
+          "distance": 9,
+          "hits": 3,
+          "attempts": 5
+        }
+      ]
+    },
+    {
+      "id": "5e127ce3-f154-448a-9360-21372c2b23af",
+      "userId": "d5a84d68-8f45-4bc5-a2ba-064d6ab0c3ed",
+      "routineId": "bcee9e25-86f5-413a-b4b8-2e1d916ea947",
+      "mode": "individual",
+      "date": "2025-08-26T22:05:47.812Z",
+      "stations": [
+        {
+          "distance": 5,
+          "hits": 4,
+          "attempts": 5
+        },
+        {
+          "distance": 7,
+          "hits": 3,
+          "attempts": 5
+        },
+        {
+          "distance": 9,
+          "hits": 2,
+          "attempts": 5
+        }
+      ]
     }
   ],
   "manufacturers": [
     {
       "id": "innova",
-      "name": "Innova (Innova Champion Discs)"
+      "name": "Innova Champion Discs"
     },
     {
       "id": "discraft",
@@ -625,6 +626,10 @@
     {
       "id": "windward",
       "name": "Windward Discs"
+    },
+    {
+      "id": "Shaman",
+      "name": "Shaman Discs Golf"
     },
     {
       "id": "wingman",
