@@ -197,14 +197,20 @@ app.get('/discs/compare', (req, res) => {
     });
   });
   const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
+  const manufacturerMap = new Map(
+    (db.data.manufacturers || []).map((m) => [m.name, m.id])
+  );
   const discs = db.data.discs
     .filter((d) => ids.includes(d.id))
     .map((d) => {
       const st = statsByDisc[d.id] || { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
       const th = st.c1.h + st.c2.h;
       const ta = st.c1.a + st.c2.a;
+      const short = manufacturerMap.get(d.brand) || d.brand;
+      const brandShort = short.charAt(0).toUpperCase() + short.slice(1);
       return {
         ...d,
+        brandShort,
         stats: {
           c1: { h: st.c1.h, a: st.c1.a, pct: pct(st.c1.h, st.c1.a) },
           c2: { h: st.c2.h, a: st.c2.a, pct: pct(st.c2.h, st.c2.a) },
@@ -212,7 +218,7 @@ app.get('/discs/compare', (req, res) => {
         },
       };
     });
-  res.render('discs/compare', { discs, start, end, ids });
+  res.render('discs/compare', { discs, start, end, ids, activeTab: 'discs' });
 });
 
 app.get('/discs/:id', (req, res) => {

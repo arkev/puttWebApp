@@ -1,47 +1,66 @@
 extends ../layout
 
 block content
-  h2 Comparar discos
-  form(method="get" action="/discs/compare" class="filters")
-    each id in ids
-      input(type="hidden" name="ids" value=id)
-    label
-      | Desde:
-      input(type="date" name="start" value=start)
-    label
-      | Hasta:
-      input(type="date" name="end" value=end)
-    button.btn(type="submit") Filtrar
-  if discs.length >= 2
-    - const maxC1 = Math.max(...discs.map(d => d.stats.c1.pct))
-    - const maxC2 = Math.max(...discs.map(d => d.stats.c2.pct))
-    - const maxTotal = Math.max(...discs.map(d => d.stats.total.pct))
-    table
-      thead
-        tr
-          th Disco
-          th C1
-          th C2
-          th Total
-      tbody
-        each disc in discs
+  .disc-compare
+    .header.form-header
+      a.close(href="/discs" aria-label="Cerrar")
+        i.fa-solid.fa-xmark
+      h1 Comparar discos
+    form.filters(method="get" action="/discs/compare")
+      each id in ids
+        input(type="hidden" name="ids" value=id)
+      .group
+        label(for="start") Desde:
+        input#start(type="date" name="start" value=start)
+      .group
+        label(for="end") Hasta:
+        input#end(type="date" name="end" value=end)
+      button.btn(type="submit") Filtrar
+    if discs.length >= 2
+      - const maxC1 = Math.max(...discs.map(d => d.stats.c1.pct))
+      - const maxC2 = Math.max(...discs.map(d => d.stats.c2.pct))
+      - const maxTotal = Math.max(...discs.map(d => d.stats.total.pct))
+      table
+        thead
           tr
-            td #{disc.brand} #{disc.model}
-            td
-              if disc.stats.c1.pct === maxC1
-                strong #{disc.stats.c1.pct}% (#{disc.stats.c1.h}/#{disc.stats.c1.a})
-              else
-                | #{disc.stats.c1.pct}% (#{disc.stats.c1.h}/#{disc.stats.c1.a})
-            td
-              if disc.stats.c2.pct === maxC2
-                strong #{disc.stats.c2.pct}% (#{disc.stats.c2.h}/#{disc.stats.c2.a})
-              else
-                | #{disc.stats.c2.pct}% (#{disc.stats.c2.h}/#{disc.stats.c2.a})
-            td
-              if disc.stats.total.pct === maxTotal
-                strong #{disc.stats.total.pct}% (#{disc.stats.total.h}/#{disc.stats.total.a})
-              else
-                | #{disc.stats.total.pct}% (#{disc.stats.total.h}/#{disc.stats.total.a})
-  else
-    p Selecciona al menos dos discos para comparar.
-  a(href='/discs') Volver
+            th Disco
+            th C1
+            th C2
+            th Total
+        tbody
+          each disc in discs
+            tr
+              td #{disc.alias || disc.model} #{disc.brandShort}
+              td
+                if disc.stats.c1.pct === maxC1
+                  strong #{disc.stats.c1.pct}% (#{disc.stats.c1.h}/#{disc.stats.c1.a})
+                else
+                  | #{disc.stats.c1.pct}% (#{disc.stats.c1.h}/#{disc.stats.c1.a})
+              td
+                if disc.stats.c2.pct === maxC2
+                  strong #{disc.stats.c2.pct}% (#{disc.stats.c2.h}/#{disc.stats.c2.a})
+                else
+                  | #{disc.stats.c2.pct}% (#{disc.stats.c2.h}/#{disc.stats.c2.a})
+              td
+                if disc.stats.total.pct === maxTotal
+                  strong #{disc.stats.total.pct}% (#{disc.stats.total.h}/#{disc.stats.total.a})
+                else
+                  | #{disc.stats.total.pct}% (#{disc.stats.total.h}/#{disc.stats.total.a})
+    else
+      p Selecciona al menos dos discos para comparar.
+    .bottom-nav
+      a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(class=activeTab==='discs' ? 'active' : '', href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(class=activeTab==='routines' ? 'active' : '', href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
+        i.fa-solid.fa-user
+        span Tú
+
