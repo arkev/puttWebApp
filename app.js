@@ -170,9 +170,17 @@ app.get('/discs/compare', (req, res) => {
   const { start, end } = req.query;
   const parseDate = (s, isEnd = false) => {
     if (!s) return null;
-    // construct date in local time to avoid timezone shifts
-    const d = new Date(`${s}T${isEnd ? '23:59:59.999' : '00:00:00'}`);
-    return isNaN(d) ? null : d;
+    const [y, m, d] = s.split('-').map(Number);
+    const date = new Date(
+      y,
+      m - 1,
+      d,
+      isEnd ? 23 : 0,
+      isEnd ? 59 : 0,
+      isEnd ? 59 : 0,
+      isEnd ? 999 : 0
+    );
+    return isNaN(date) ? null : date;
   };
   const startDate = parseDate(start);
   const endDate = parseDate(end, true);
