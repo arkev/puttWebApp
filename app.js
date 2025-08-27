@@ -177,18 +177,6 @@ app.get('/discs/compare', (req, res) => {
   const startDate = parseDate(start);
   const endDate = parseDate(end, true);
   const statsByDisc = {};
-  // seed from persisted aggregated stats when no date filter is applied
-  if (!startDate && !endDate) {
-    ids.forEach((id) => {
-      const st = db.data.discStats?.[id];
-      if (st) {
-        statsByDisc[id] = {
-          c1: { h: st.circle1?.hits || 0, a: st.circle1?.attempts || 0 },
-          c2: { h: st.circle2?.hits || 0, a: st.circle2?.attempts || 0 },
-        };
-      }
-    });
-  }
   const relevantSessions = (db.data.sessions || []).filter((s) => {
     const d = new Date(s.date);
     if (startDate && d < startDate) return false;
@@ -207,6 +195,16 @@ app.get('/discs/compare', (req, res) => {
       st.c2.a += ds.c2.a;
       statsByDisc[ds.id] = st;
     });
+  });
+  // fallback to persisted totals when filtered sessions yield nothing
+  ids.forEach((id) => {
+    if (statsByDisc[id]) return;
+    const st = db.data.discStats?.[id];
+    if (!st) return;
+    statsByDisc[id] = {
+      c1: { h: st.circle1?.hits || 0, a: st.circle1?.attempts || 0 },
+      c2: { h: st.circle2?.hits || 0, a: st.circle2?.attempts || 0 },
+    };
   });
   const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
   const manufacturerMap = new Map(
