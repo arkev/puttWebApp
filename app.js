@@ -178,8 +178,52 @@ app.get('/discs/:id', (req, res) => {
 app.get('/discs/compare', (req, res) => {
   let ids = req.query.ids || [];
   if (!Array.isArray(ids)) ids = [ids];
-  const discs = db.data.discs.filter((d) => ids.includes(d.id));
-  res.render('discs/compare', { discs, stats: db.data.discStats });
+  const { start, end } = req.query;
+  const parseDate = (s, isEnd = false) => {
+    if (!s) return null;
+    const d = new Date(s);
+    if (isEnd) d.setHours(23, 59, 59, 999);
+    return isNaN(d) ? null : d;
+  };
+  const startDate = parseDate(start);
+  const endDate = parseDate(end, true);
+  const relevantSessions = (db.data.sessions || []).filter((s) => {
+    const d = new Date(s.date);
+    if (startDate && d < startDate) return false;
+    if (endDate && d > endDate) return false;
+    return true;
+  });
+  const statsByDisc = {};
+  relevantSessions.forEach((s) => {
+    if (!Array.isArray(s.discs)) return;
+    s.discs.forEach((ds) => {
+      if (!ids.includes(ds.id)) return;
+      const st =
+        statsByDisc[ds.id] || { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
+      st.c1.h += ds.c1.h;
+      st.c1.a += ds.c1.a;
+      st.c2.h += ds.c2.h;
+      st.c2.a += ds.c2.a;
+      statsByDisc[ds.id] = st;
+    });
+  });
+  const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
+  const discs = db.data.discs
+    .filter((d) => ids.includes(d.id))
+    .map((d) => {
+      const st = statsByDisc[d.id] || { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
+      const th = st.c1.h + st.c2.h;
+      const ta = st.c1.a + st.c2.a;
+      return {
+        ...d,
+        stats: {
+          c1: { h: st.c1.h, a: st.c1.a, pct: pct(st.c1.h, st.c1.a) },
+          c2: { h: st.c2.h, a: st.c2.a, pct: pct(st.c2.h, st.c2.a) },
+          total: { h: th, a: ta, pct: pct(th, ta) },
+        },
+      };
+    });
+  res.render('discs/compare', { discs, start, end, ids });
 });
 
 // Routines
@@ -249,6 +293,7 @@ app.post('/routines/:id/complete', (req, res) => {
   const mode = req.query.mode;
   let repeatUrl = `/routines/${routine.id}/start?mode=${mode}`;
   const sessionStations = [];
+  const sessionDiscs = [];
   if (mode === 'individual') {
     let ids = req.body.discIds || [];
     if (!Array.isArray(ids)) ids = [ids];
@@ -272,6 +317,11 @@ app.post('/routines/:id/complete', (req, res) => {
       db.data.stats.circle1.hits += hitc1;
       db.data.stats.circle2.attempts += attc2;
       db.data.stats.circle2.hits += hitc2;
+      sessionDiscs.push({
+        id,
+        c1: { h: hitc1, a: attc1 },
+        c2: { h: hitc2, a: attc2 },
+      });
     });
     routine.stations.forEach((station, i) => {
       const hits = Number(req.body[`hitsStation_${i}`] || 0);
@@ -295,14 +345,18 @@ app.post('/routines/:id/complete', (req, res) => {
     });
     repeatUrl += `&totalDiscs=${totalDiscs}`;
   }
-  db.data.sessions.push({
+  const sessionData = {
     id: uuidv4(),
     userId: req.clientId,
     routineId: routine.id,
     mode,
     date: new Date().toISOString(),
     stations: sessionStations,
-  });
+  };
+  if (mode === 'individual') {
+    sessionData.discs = sessionDiscs;
+  }
+  db.data.sessions.push(sessionData);
   db.write();
   res.render('routines/result', { routine, repeatUrl, activeTab: 'routines' });
 });

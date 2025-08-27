@@ -2,20 +2,46 @@ extends ../layout
 
 block content
   h2 Comparar discos
+  form(method="get" action="/discs/compare" class="filters")
+    each id in ids
+      input(type="hidden" name="ids" value=id)
+    label
+      | Desde:
+      input(type="date" name="start" value=start)
+    label
+      | Hasta:
+      input(type="date" name="end" value=end)
+    button.btn(type="submit") Filtrar
   if discs.length >= 2
+    - const maxC1 = Math.max(...discs.map(d => d.stats.c1.pct))
+    - const maxC2 = Math.max(...discs.map(d => d.stats.c2.pct))
+    - const maxTotal = Math.max(...discs.map(d => d.stats.total.pct))
     table
       thead
         tr
           th Disco
-          th C1 (aciertos/intent)
-          th C2 (aciertos/intent)
+          th C1
+          th C2
+          th Total
       tbody
         each disc in discs
-          - var s = stats[disc.id] || {circle1:{hits:0,attempts:0},circle2:{hits:0,attempts:0}}
           tr
             td #{disc.brand} #{disc.model}
-            td #{s.circle1.hits} / #{s.circle1.attempts}
-            td #{s.circle2.hits} / #{s.circle2.attempts}
+            td
+              if disc.stats.c1.pct === maxC1
+                strong #{disc.stats.c1.pct}% (#{disc.stats.c1.h}/#{disc.stats.c1.a})
+              else
+                | #{disc.stats.c1.pct}% (#{disc.stats.c1.h}/#{disc.stats.c1.a})
+            td
+              if disc.stats.c2.pct === maxC2
+                strong #{disc.stats.c2.pct}% (#{disc.stats.c2.h}/#{disc.stats.c2.a})
+              else
+                | #{disc.stats.c2.pct}% (#{disc.stats.c2.h}/#{disc.stats.c2.a})
+            td
+              if disc.stats.total.pct === maxTotal
+                strong #{disc.stats.total.pct}% (#{disc.stats.total.h}/#{disc.stats.total.a})
+              else
+                | #{disc.stats.total.pct}% (#{disc.stats.total.h}/#{disc.stats.total.a})
   else
     p Selecciona al menos dos discos para comparar.
   a(href='/discs') Volver
