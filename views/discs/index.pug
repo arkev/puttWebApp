@@ -46,7 +46,7 @@ block content
         .actions
           button.btn(type="submit" id="btnCompare" disabled) Comparar seleccionados
       each d in discs
-        form#del-${d.id}(method="post" action=`/discs/${d.id}/delete` onsubmit="return confirm('¿Seguro que deseas eliminar este disco?');")
+        form(id=`del-${d.id}` method="post" action=`/discs/${d.id}/delete` onsubmit="return confirm('¿Seguro que deseas eliminar este disco?');")
     else
       p No tienes discos todavía.
     .bottom-nav
