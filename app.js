@@ -171,7 +171,7 @@ app.get('/discs/compare', (req, res) => {
   const parseDate = (s, isEnd = false) => {
     if (!s) return null;
     const [y, m, d] = s.split('-').map(Number);
-    const date = new Date(
+    const ms = Date.UTC(
       y,
       m - 1,
       d,
@@ -180,31 +180,30 @@ app.get('/discs/compare', (req, res) => {
       isEnd ? 59 : 0,
       isEnd ? 999 : 0
     );
+    const date = new Date(ms);
     return isNaN(date) ? null : date;
   };
   const startDate = parseDate(start);
   const endDate = parseDate(end, true);
-  const statsByDisc = {};
   const filtering = startDate || endDate;
 
+  const statsByDisc = ids.reduce((acc, id) => {
+    acc[id] = { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
+    return acc;
+  }, {});
+
   if (filtering) {
-    const relevantSessions = (db.data.sessions || []).filter((s) => {
+    (db.data.sessions || []).forEach((s) => {
       const d = new Date(s.date);
-      if (startDate && d < startDate) return false;
-      if (endDate && d > endDate) return false;
-      return true;
-    });
-    relevantSessions.forEach((s) => {
+      if (startDate && d < startDate) return;
+      if (endDate && d > endDate) return;
       if (!Array.isArray(s.discs)) return;
       s.discs.forEach((ds) => {
-        if (!ids.includes(ds.id)) return;
-        const st =
-          statsByDisc[ds.id] || { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
-        st.c1.h += ds.c1.h;
-        st.c1.a += ds.c1.a;
-        st.c2.h += ds.c2.h;
-        st.c2.a += ds.c2.a;
-        statsByDisc[ds.id] = st;
+        if (!statsByDisc[ds.id]) return;
+        statsByDisc[ds.id].c1.h += ds.c1.h;
+        statsByDisc[ds.id].c1.a += ds.c1.a;
+        statsByDisc[ds.id].c2.h += ds.c2.h;
+        statsByDisc[ds.id].c2.a += ds.c2.a;
       });
     });
   } else {
