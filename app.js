@@ -187,6 +187,73 @@ app.get('/discs/compare', (req, res) => {
   const { start, end } = req.query;
   const parseDate = (s, isEnd = false) => {
     if (!s) return null;
+    // construct date in local time to avoid timezone shifts
+    const d = new Date(`${s}T${isEnd ? '23:59:59.999' : '00:00:00'}`);
+    return isNaN(d) ? null : d;
+  };
+  const startDate = parseDate(start);
+  const endDate = parseDate(end, true);
+  const statsByDisc = {};
+  const relevantSessions = (db.data.sessions || []).filter((s) => {
+    const d = new Date(s.date);
+    if (startDate && d < startDate) return false;
+    if (endDate && d > endDate) return false;
+    return true;
+  });
+  relevantSessions.forEach((s) => {
+    if (!Array.isArray(s.discs)) return;
+    s.discs.forEach((ds) => {
+      if (!ids.includes(ds.id)) return;
+      const st =
+        statsByDisc[ds.id] || { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
+      st.c1.h += ds.c1.h;
+      st.c1.a += ds.c1.a;
+      st.c2.h += ds.c2.h;
+      st.c2.a += ds.c2.a;
+      statsByDisc[ds.id] = st;
+    });
+  });
+  // fallback to persisted totals when filtered sessions yield nothing
+  ids.forEach((id) => {
+    if (statsByDisc[id]) return;
+    const st = db.data.discStats?.[id];
+    if (!st) return;
+    statsByDisc[id] = {
+      c1: { h: st.circle1?.hits || 0, a: st.circle1?.attempts || 0 },
+      c2: { h: st.circle2?.hits || 0, a: st.circle2?.attempts || 0 },
+    };
+  });
+  const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
+  const manufacturerMap = new Map(
+    (db.data.manufacturers || []).map((m) => [m.name, m.id])
+  );
+  const discs = db.data.discs
+    .filter((d) => ids.includes(d.id))
+    .map((d) => {
+      const st = statsByDisc[d.id] || { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
+      const th = st.c1.h + st.c2.h;
+      const ta = st.c1.a + st.c2.a;
+      const short = manufacturerMap.get(d.brand) || d.brand;
+      const brandShort = short.charAt(0).toUpperCase() + short.slice(1);
+      return {
+        ...d,
+        brandShort,
+        stats: {
+          c1: { h: st.c1.h, a: st.c1.a, pct: pct(st.c1.h, st.c1.a) },
+          c2: { h: st.c2.h, a: st.c2.a, pct: pct(st.c2.h, st.c2.a) },
+          total: { h: th, a: ta, pct: pct(th, ta) },
+        },
+      };
+    });
+  res.render('discs/compare', { discs, start, end, ids, activeTab: 'discs' });
+});
+
+app.get('/discs/compare', (req, res) => {
+  let ids = req.query.ids || [];
+  if (!Array.isArray(ids)) ids = [ids];
+  const { start, end } = req.query;
+  const parseDate = (s, isEnd = false) => {
+    if (!s) return null;
     const [y, m, d] = s.split('-').map(Number);
     const ms = Date.UTC(
       y,
@@ -342,36 +409,24 @@ app.post('/routines/:id/complete', (req, res) => {
     if (!Array.isArray(ids)) ids = [ids];
     const uniqueIds = [...new Set(ids)];
     uniqueIds.forEach((id) => {
-  const attc1 = Number(req.body[`attc1_${id}`]) || 0;
-  const hitc1 = Number(req.body[`hitc1_${id}`]) || 0;
-  const attc2 = Number(req.body[`attc2_${id}`]) || 0;
-  const hitc2 = Number(req.body[`hitc2_${id}`]) || 0;
-  const stats = db.data.discStats[id] || { circle1: { hits: 0, attempts: 0 }, circle2: { hits: 0, attempts: 0 } };
-  stats.circle1 = stats.circle1 || { hits: 0, attempts: 0 };
-  stats.circle2 = stats.circle2 || { hits: 0, attempts: 0 };
-  stats.circle1.attempts = Number(stats.circle1.attempts) || 0;
-  stats.circle1.hits = Number(stats.circle1.hits) || 0;
-  stats.circle2.attempts = Number(stats.circle2.attempts) || 0;
-  stats.circle2.hits = Number(stats.circle2.hits) || 0;
-  stats.circle1.attempts += attc1;
-  stats.circle1.hits += hitc1;
-  stats.circle2.attempts += attc2;
-  stats.circle2.hits += hitc2;
-  db.data.discStats[id] = stats;
-  // Normalizar antes de sumar al stat global
-  db.data.stats.circle1.attempts = Number(db.data.stats.circle1.attempts) || 0;
-  db.data.stats.circle1.hits = Number(db.data.stats.circle1.hits) || 0;
-  db.data.stats.circle2.attempts = Number(db.data.stats.circle2.attempts) || 0;
-  db.data.stats.circle2.hits = Number(db.data.stats.circle2.hits) || 0;
-  db.data.stats.circle1.attempts += attc1;
-  db.data.stats.circle1.hits += hitc1;
-  db.data.stats.circle2.attempts += attc2;
-  db.data.stats.circle2.hits += hitc2;
-      sessionDiscs.push({
-        id,
-        c1: { h: hitc1, a: attc1 },
-        c2: { h: hitc2, a: attc2 },
-      });
+      const attc1 = Number(req.body[`attc1_${id}`] || 0);
+      const hitc1 = Number(req.body[`hitc1_${id}`] || 0);
+      const attc2 = Number(req.body[`attc2_${id}`] || 0);
+      const hitc2 = Number(req.body[`hitc2_${id}`] || 0);
+      const stats =
+        db.data.discStats[id] || {
+          circle1: { hits: 0, attempts: 0 },
+          circle2: { hits: 0, attempts: 0 },
+        };
+      stats.circle1.attempts += attc1;
+      stats.circle1.hits += hitc1;
+      stats.circle2.attempts += attc2;
+      stats.circle2.hits += hitc2;
+      db.data.discStats[id] = stats;
+      db.data.stats.circle1.attempts += attc1;
+      db.data.stats.circle1.hits += hitc1;
+      db.data.stats.circle2.attempts += attc2;
+      db.data.stats.circle2.hits += hitc2;
     });
     routine.stations.forEach((station, i) => {
       const hits = Number(req.body[`hitsStation_${i}`] || 0);
