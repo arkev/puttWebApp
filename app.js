@@ -34,6 +34,23 @@ async function initDB() {
   db.data.sessions ||= [];
   db.data.stats ||= { circle1: { hits: 0, attempts: 0 }, circle2: { hits: 0, attempts: 0 } };
   db.data.discStats ||= {};
+  // Normalizar posibles valores nulos o no numéricos en stats globales
+  ['circle1', 'circle2'].forEach((c) => {
+    if (!db.data.stats[c]) db.data.stats[c] = { hits: 0, attempts: 0 };
+    db.data.stats[c].hits = Number(db.data.stats[c].hits) || 0;
+    db.data.stats[c].attempts = Number(db.data.stats[c].attempts) || 0;
+  });
+  // Normalizar discStats
+  Object.keys(db.data.discStats || {}).forEach((id) => {
+    const s = db.data.discStats[id] || {};
+    s.circle1 = s.circle1 || { hits: 0, attempts: 0 };
+    s.circle2 = s.circle2 || { hits: 0, attempts: 0 };
+    s.circle1.hits = Number(s.circle1.hits) || 0;
+    s.circle1.attempts = Number(s.circle1.attempts) || 0;
+    s.circle2.hits = Number(s.circle2.hits) || 0;
+    s.circle2.attempts = Number(s.circle2.attempts) || 0;
+    db.data.discStats[id] = s;
+  });
   await db.write();
 }
 
@@ -325,24 +342,31 @@ app.post('/routines/:id/complete', (req, res) => {
     if (!Array.isArray(ids)) ids = [ids];
     const uniqueIds = [...new Set(ids)];
     uniqueIds.forEach((id) => {
-      const attc1 = Number(req.body[`attc1_${id}`] || 0);
-      const hitc1 = Number(req.body[`hitc1_${id}`] || 0);
-      const attc2 = Number(req.body[`attc2_${id}`] || 0);
-      const hitc2 = Number(req.body[`hitc2_${id}`] || 0);
-      const stats =
-        db.data.discStats[id] || {
-          circle1: { hits: 0, attempts: 0 },
-          circle2: { hits: 0, attempts: 0 },
-        };
-      stats.circle1.attempts += attc1;
-      stats.circle1.hits += hitc1;
-      stats.circle2.attempts += attc2;
-      stats.circle2.hits += hitc2;
-      db.data.discStats[id] = stats;
-      db.data.stats.circle1.attempts += attc1;
-      db.data.stats.circle1.hits += hitc1;
-      db.data.stats.circle2.attempts += attc2;
-      db.data.stats.circle2.hits += hitc2;
+  const attc1 = Number(req.body[`attc1_${id}`]) || 0;
+  const hitc1 = Number(req.body[`hitc1_${id}`]) || 0;
+  const attc2 = Number(req.body[`attc2_${id}`]) || 0;
+  const hitc2 = Number(req.body[`hitc2_${id}`]) || 0;
+  const stats = db.data.discStats[id] || { circle1: { hits: 0, attempts: 0 }, circle2: { hits: 0, attempts: 0 } };
+  stats.circle1 = stats.circle1 || { hits: 0, attempts: 0 };
+  stats.circle2 = stats.circle2 || { hits: 0, attempts: 0 };
+  stats.circle1.attempts = Number(stats.circle1.attempts) || 0;
+  stats.circle1.hits = Number(stats.circle1.hits) || 0;
+  stats.circle2.attempts = Number(stats.circle2.attempts) || 0;
+  stats.circle2.hits = Number(stats.circle2.hits) || 0;
+  stats.circle1.attempts += attc1;
+  stats.circle1.hits += hitc1;
+  stats.circle2.attempts += attc2;
+  stats.circle2.hits += hitc2;
+  db.data.discStats[id] = stats;
+  // Normalizar antes de sumar al stat global
+  db.data.stats.circle1.attempts = Number(db.data.stats.circle1.attempts) || 0;
+  db.data.stats.circle1.hits = Number(db.data.stats.circle1.hits) || 0;
+  db.data.stats.circle2.attempts = Number(db.data.stats.circle2.attempts) || 0;
+  db.data.stats.circle2.hits = Number(db.data.stats.circle2.hits) || 0;
+  db.data.stats.circle1.attempts += attc1;
+  db.data.stats.circle1.hits += hitc1;
+  db.data.stats.circle2.attempts += attc2;
+  db.data.stats.circle2.hits += hitc2;
       sessionDiscs.push({
         id,
         c1: { h: hitc1, a: attc1 },
