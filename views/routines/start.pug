@@ -115,7 +115,7 @@ block content
               const totalAttempts=discs.length*stations.length;
               sessionTotal.textContent=`${totalHits}/${totalAttempts}`;
             }
-            inputs.forEach(inp=>inp.addEventListener('change',updateTotals));
+            inputs.forEach(inp=>inp.addEventListener('change',()=>{ save(); updateTotals(); }));
             backBtn.addEventListener('click',()=>{ save(); render(current-1); });
             nextBtn.addEventListener('click',()=>{
               save();

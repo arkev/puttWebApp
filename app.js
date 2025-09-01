@@ -34,6 +34,23 @@ async function initDB() {
   db.data.sessions ||= [];
   db.data.stats ||= { circle1: { hits: 0, attempts: 0 }, circle2: { hits: 0, attempts: 0 } };
   db.data.discStats ||= {};
+  // Normalizar posibles valores nulos o no numéricos en stats globales
+  ['circle1', 'circle2'].forEach((c) => {
+    if (!db.data.stats[c]) db.data.stats[c] = { hits: 0, attempts: 0 };
+    db.data.stats[c].hits = Number(db.data.stats[c].hits) || 0;
+    db.data.stats[c].attempts = Number(db.data.stats[c].attempts) || 0;
+  });
+  // Normalizar discStats
+  Object.keys(db.data.discStats || {}).forEach((id) => {
+    const s = db.data.discStats[id] || {};
+    s.circle1 = s.circle1 || { hits: 0, attempts: 0 };
+    s.circle2 = s.circle2 || { hits: 0, attempts: 0 };
+    s.circle1.hits = Number(s.circle1.hits) || 0;
+    s.circle1.attempts = Number(s.circle1.attempts) || 0;
+    s.circle2.hits = Number(s.circle2.hits) || 0;
+    s.circle2.attempts = Number(s.circle2.attempts) || 0;
+    db.data.discStats[id] = s;
+  });
   await db.write();
 }
 
@@ -231,6 +248,83 @@ app.get('/discs/compare', (req, res) => {
   res.render('discs/compare', { discs, start, end, ids, activeTab: 'discs' });
 });
 
+app.get('/discs/compare', (req, res) => {
+  let ids = req.query.ids || [];
+  if (!Array.isArray(ids)) ids = [ids];
+  const { start, end } = req.query;
+  const parseDate = (s, isEnd = false) => {
+    if (!s) return null;
+    const [y, m, d] = s.split('-').map(Number);
+    const ms = Date.UTC(
+      y,
+      m - 1,
+      d,
+      isEnd ? 23 : 0,
+      isEnd ? 59 : 0,
+      isEnd ? 59 : 0,
+      isEnd ? 999 : 0
+    );
+    const date = new Date(ms);
+    return isNaN(date) ? null : date;
+  };
+  const startDate = parseDate(start);
+  const endDate = parseDate(end, true);
+  const filtering = startDate || endDate;
+
+  const statsByDisc = ids.reduce((acc, id) => {
+    acc[id] = { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
+    return acc;
+  }, {});
+
+  if (filtering) {
+    (db.data.sessions || []).forEach((s) => {
+      const d = new Date(s.date);
+      if (startDate && d < startDate) return;
+      if (endDate && d > endDate) return;
+      if (!Array.isArray(s.discs)) return;
+      s.discs.forEach((ds) => {
+        if (!statsByDisc[ds.id]) return;
+        statsByDisc[ds.id].c1.h += ds.c1.h;
+        statsByDisc[ds.id].c1.a += ds.c1.a;
+        statsByDisc[ds.id].c2.h += ds.c2.h;
+        statsByDisc[ds.id].c2.a += ds.c2.a;
+      });
+    });
+  } else {
+    ids.forEach((id) => {
+      const st = db.data.discStats?.[id];
+      if (!st) return;
+      statsByDisc[id] = {
+        c1: { h: st.circle1?.hits || 0, a: st.circle1?.attempts || 0 },
+        c2: { h: st.circle2?.hits || 0, a: st.circle2?.attempts || 0 },
+      };
+    });
+  }
+  const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
+  const manufacturerMap = new Map(
+    (db.data.manufacturers || []).map((m) => [m.name, m.id])
+  );
+  const discs = db.data.discs
+    .filter((d) => ids.includes(d.id))
+    .map((d) => {
+      const st = statsByDisc[d.id] || { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
+      const th = st.c1.h + st.c2.h;
+      const ta = st.c1.a + st.c2.a;
+      const short = manufacturerMap.get(d.brand) || d.brand;
+      const brandShort = short.charAt(0).toUpperCase() + short.slice(1);
+      return {
+        ...d,
+        brandShort,
+        stats: {
+          c1: { h: st.c1.h, a: st.c1.a, pct: pct(st.c1.h, st.c1.a) },
+          c2: { h: st.c2.h, a: st.c2.a, pct: pct(st.c2.h, st.c2.a) },
+          total: { h: th, a: ta, pct: pct(th, ta) },
+        },
+      };
+    });
+  res.render('discs/compare', { discs, start, end, ids, activeTab: 'discs' });
+});
+
 app.get('/discs/:id', (req, res) => {
   const disc = db.data.discs.find((d) => d.id === req.params.id);
   if (!disc) return res.redirect('/discs');
@@ -333,11 +427,6 @@ app.post('/routines/:id/complete', (req, res) => {
       db.data.stats.circle1.hits += hitc1;
       db.data.stats.circle2.attempts += attc2;
       db.data.stats.circle2.hits += hitc2;
-      sessionDiscs.push({
-        id,
-        c1: { h: hitc1, a: attc1 },
-        c2: { h: hitc2, a: attc2 },
-      });
     });
     routine.stations.forEach((station, i) => {
       const hits = Number(req.body[`hitsStation_${i}`] || 0);
