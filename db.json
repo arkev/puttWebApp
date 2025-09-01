@@ -23,14 +23,110 @@
       "model": "Fuego",
       "plastic": "Base",
       "weight": "166",
-      "color": "#004f77",
+      "color": "#b000b2",
       "flight": {
         "speed": "3",
         "glide": "4",
         "turn": "0",
         "fade": "1"
       },
-      "image": "51696173cbf29bf38edb35e5cd7a7bac"
+      "image": "160ff4b2bd8a6260828e8cf434c4bf64"
+    },
+    {
+      "id": "9de2c082-2842-46b0-90d1-336b7b6d71c0",
+      "alias": "Aviar",
+      "brand": "Innova Champion Discs",
+      "model": "Aviar",
+      "plastic": "DX",
+      "weight": "162",
+      "color": "#ffffff",
+      "flight": {
+        "speed": "2",
+        "glide": "3",
+        "turn": "0",
+        "fade": "1"
+      },
+      "image": "104131b0f9a61982cb2c6fc734a5b694"
+    },
+    {
+      "id": "c23e7ca3-4104-481b-b0fb-87a67f281adf",
+      "alias": "Glitch",
+      "brand": "MVP Disc Sports",
+      "model": "Glitch",
+      "plastic": "Neutron Soft Plastic",
+      "weight": "153",
+      "color": "#00839e",
+      "flight": {
+        "speed": "1",
+        "glide": "7",
+        "turn": "0",
+        "fade": "0"
+      },
+      "image": "3a179dafae586130511c073dd87afe6a"
+    },
+    {
+      "id": "c4a8dc54-f196-402a-bfdb-a9d08243d114",
+      "alias": "La Berg",
+      "brand": "Kastaplast",
+      "model": "Berg",
+      "plastic": "K3 Hard",
+      "weight": "172",
+      "color": "#ff7119",
+      "flight": {
+        "speed": "1",
+        "glide": "1",
+        "turn": "0",
+        "fade": "2"
+      },
+      "image": "051f7c5ddec8aa9a47a76841c308b87a"
+    },
+    {
+      "id": "d5156348-ffda-4cd8-9e54-bcf39bc59ade",
+      "alias": "Armadillo ",
+      "brand": "Lone Star Disc",
+      "model": "Armadillo ",
+      "plastic": "",
+      "weight": "176",
+      "color": "#ebd9ff",
+      "flight": {
+        "speed": "1",
+        "glide": "2",
+        "turn": "0",
+        "fade": "1"
+      },
+      "image": "335896c4f3703fecf3212d9b4e01fa03"
+    },
+    {
+      "id": "779cb2cc-ab2d-4ad2-9cc6-b5abf750cc7f",
+      "alias": "El ilegal ",
+      "brand": "Otra",
+      "model": "Aegle Putter",
+      "plastic": "Base",
+      "weight": "166",
+      "color": "#00269a",
+      "flight": {
+        "speed": "1",
+        "glide": "3",
+        "turn": "0",
+        "fade": "0"
+      },
+      "image": "c84ad689f0dfe97bff7d2a5a4cc8098a"
+    },
+    {
+      "id": "908e275b-1fa9-4a4c-ae74-f891e4b29c54",
+      "alias": "Ultimate",
+      "brand": "Otra",
+      "model": "Ultímate Putter",
+      "plastic": "Base",
+      "weight": "166",
+      "color": "#fff8e9",
+      "flight": {
+        "speed": "2",
+        "glide": "3",
+        "turn": "0",
+        "fade": "1"
+      },
+      "image": "9904843ef73b313f1013ca7df11c0bef"
     }
   ],
   "routines": [

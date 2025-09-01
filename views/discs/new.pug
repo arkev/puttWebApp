@@ -16,12 +16,20 @@ block content
       .group
         label(for="brand") Fabricante
         if manufacturers && manufacturers.length
+          - const sorted = manufacturers.slice().sort((a,b) => {
+          -   const an = (a.name || '').toLowerCase();
+          -   const bn = (b.name || '').toLowerCase();
+          -   if (an === 'otra') return 1;
+          -   if (bn === 'otra') return -1;
+          -   return an.localeCompare(bn);
+          - });
           select#brand(name="brand" required)
             option(value="") Selecciona fabricante
-            each m in manufacturers
+            each m in sorted
               option(value=m.name selected=(disc && disc.brand===m.name)?true:false)= m.name
+            // opción "Otra" forzada al final (si ya existe en sorted no duplica porque el selected previene conflicto)
+            option(value="Otra" selected=(disc && disc.brand==='Otra')?true:false)= 'Otra'
         else
-          // fallback si no hay catálogo
           input#brand(type="text" name="brand" placeholder="Fabricante" required value=disc?disc.brand:'')
       .group
         label(for='model') Modelo
