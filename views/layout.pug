@@ -3,12 +3,49 @@ html
   head
     meta(charset="utf-8")
     meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover")
+    meta(name="apple-mobile-web-app-capable" content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style" content="black")
+    meta(name="apple-mobile-web-app-title" content="PuttLab")
+    meta(name="theme-color" content="#0f131a")
     title PuttLab
     // Font Awesome
     link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css")
     // Tu CSS compilado por less-middleware
     link(rel="stylesheet" href="/css/style.css")
+    // Favicon
+    link(rel="icon" type="image/png" href="/images/favicon.png")
+    // iOS home screen icon
+    link(rel="apple-touch-icon" href="/images/favicon.png")
+    // PWA Manifest
+    link(rel="manifest" href="/manifest.webmanifest")
     block head
   body
     block content
+    // Fuerza navegación in-app cuando está instalada como PWA en iOS
+    script.
+      (function(){
+        var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone;
+        if(!isStandalone) return;
+        // Interceptar target _blank y window.open para mantener navegación interna
+        document.addEventListener('click', function(e){
+          var a = e.target.closest && e.target.closest('a');
+          if(!a) return;
+          var href = a.getAttribute('href');
+          if(!href) return;
+          try {
+            var u = new URL(href, location.href);
+            if(u.origin === location.origin) {
+              a.setAttribute('target','_self');
+            }
+          } catch(_) {}
+        }, true);
+        var _open = window.open;
+        window.open = function(url, name, specs){
+          try{
+            var u = new URL(url, location.href);
+            if(u.origin === location.origin){ location.href = u.href; return null; }
+          }catch(_){ }
+          return _open.apply(window, arguments);
+        };
+      })();
     block scripts

@@ -416,13 +416,29 @@ app.get('/stats', (req, res) => {
   res.render('stats/index', { stats: db.data.stats });
 });
 
+// Splash screen (mostrada una vez por cookie)
+app.get('/splash', (req, res) => {
+  res.cookie('seenSplash', '1', { httpOnly: false, maxAge: 1000 * 60 * 60 * 24 * 7 });
+  res.render('splash');
+});
+
 // Home (única)
 app.get('/', (req, res) => {
+  if (!req.cookies.seenSplash) {
+    return res.redirect('/splash');
+  }
   const userId = req.clientId || 'local';
   const allRoutines = db.data.routines || [];
   const routines = allRoutines.filter(r => r.userId === userId);
   const allSessions = (db.data.sessions || []).filter(s => s.userId === userId);
   const sessions = allSessions.slice(-5).reverse();
+
+  // Mapa rutinaId -> nombre para etiquetar sesiones
+  const routineById = new Map((allRoutines || []).map(r => [r.id, r]));
+  const sessionsView = sessions.map(s => ({
+    ...s,
+    routineName: s.routineId ? (routineById.get(s.routineId)?.name || 'Rutina') : undefined,
+  }));
 
   let lastRoutine = null;
   if (allSessions.length) {
@@ -444,7 +460,7 @@ app.get('/', (req, res) => {
       c2: pct(c2.hits, c2.attempts),
       sessionsCount: allSessions.length,
     },
-    sessions,
+    sessions: sessionsView,
     activeTab: 'home'
   });
 });
@@ -457,4 +473,122 @@ app.get('/session', (req, res) => {
     return res.redirect(`/routines/${lastRoutine.id}/start`);
   }
   return res.redirect('/routines/new');
+});
+
+// Tú (perfil)
+app.get('/you', (req, res) => {
+  const userId = req.clientId || 'local';
+  const allSessions = (db.data.sessions || []).filter(s => s.userId === userId);
+  const discsCount = (db.data.discs || []).length;
+  const c1 = db.data.stats?.circle1 || { hits: 0, attempts: 0 };
+  const c2 = db.data.stats?.circle2 || { hits: 0, attempts: 0 };
+  const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
+  const totalH = (Number(c1.hits) || 0) + (Number(c2.hits) || 0);
+  const totalA = (Number(c1.attempts) || 0) + (Number(c2.attempts) || 0);
+  // Racha actual de semanas (ISO, lunes a domingo) con al menos una sesión
+  const startOfISOWeek = (d0) => {
+    const d = new Date(Date.UTC(d0.getFullYear(), d0.getMonth(), d0.getDate()));
+    const day = d.getUTCDay() || 7; // 1..7, donde 1=Lun
+    d.setUTCDate(d.getUTCDate() - day + 1); // llevar a lunes
+    d.setUTCHours(0,0,0,0);
+    return d;
+  };
+  const weekStarts = new Set(
+    allSessions.map(s => startOfISOWeek(new Date(s.date)).getTime())
+  );
+  let streakWeeks = 0;
+  if (weekStarts.size) {
+    const sorted = Array.from(weekStarts).sort((a,b)=>b-a);
+    let current = sorted[0];
+    streakWeeks = 1;
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    while (weekStarts.has(current - oneWeek)) {
+      streakWeeks++;
+      current -= oneWeek;
+    }
+  }
+  const kpis = {
+    total: pct(totalH, totalA),
+    c1: pct(c1.hits, c1.attempts),
+    c2: pct(c2.hits, c2.attempts),
+    sessionsCount: allSessions.length,
+    discsCount,
+    streakWeeks,
+  };
+  res.render('you/index', {
+    user: { name: 'Kev', avatarUrl: '/images/avatar.png' },
+    kpis,
+    activeTab: 'you',
+  });
+});
+
+// Sesiones - listado completo
+app.get('/sessions', (req, res) => {
+  const userId = req.clientId || 'local';
+  const allRoutines = db.data.routines || [];
+  const routineById = new Map(allRoutines.map(r => [r.id, r]));
+  const allSessions = (db.data.sessions || [])
+    .filter(s => s.userId === userId)
+    .slice()
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sessionsView = allSessions.map(s => ({
+    ...s,
+    routineName: s.routineId ? (routineById.get(s.routineId)?.name || 'Rutina') : undefined,
+  }));
+  res.render('sessions/index', { sessions: sessionsView, sessionsCount: sessionsView.length, activeTab: 'home' });
+});
+
+// Eliminar sesión (con rollback de stats)
+app.post('/sessions/:id/delete', (req, res) => {
+  const idx = (db.data.sessions || []).findIndex(s => s.id === req.params.id);
+  if (idx === -1) return res.redirect('/sessions');
+  const s = db.data.sessions[idx];
+
+  // Asegurar estructura numérica
+  db.data.stats = db.data.stats || { circle1: { hits: 0, attempts: 0 }, circle2: { hits: 0, attempts: 0 } };
+  ['circle1', 'circle2'].forEach((c) => {
+    db.data.stats[c] = db.data.stats[c] || { hits: 0, attempts: 0 };
+    db.data.stats[c].hits = Number(db.data.stats[c].hits) || 0;
+    db.data.stats[c].attempts = Number(db.data.stats[c].attempts) || 0;
+  });
+
+  const clamp = (n) => (n < 0 ? 0 : n);
+
+  if (s.mode === 'individual' && Array.isArray(s.discs)) {
+    s.discs.forEach((ds) => {
+      const id = ds.id;
+      const st = db.data.discStats?.[id];
+      if (st) {
+        st.circle1 = st.circle1 || { hits: 0, attempts: 0 };
+        st.circle2 = st.circle2 || { hits: 0, attempts: 0 };
+        st.circle1.hits = clamp((Number(st.circle1.hits) || 0) - (Number(ds.c1?.h) || 0));
+        st.circle1.attempts = clamp((Number(st.circle1.attempts) || 0) - (Number(ds.c1?.a) || 0));
+        st.circle2.hits = clamp((Number(st.circle2.hits) || 0) - (Number(ds.c2?.h) || 0));
+        st.circle2.attempts = clamp((Number(st.circle2.attempts) || 0) - (Number(ds.c2?.a) || 0));
+        db.data.discStats[id] = st;
+      }
+      db.data.stats.circle1.hits = clamp(db.data.stats.circle1.hits - (Number(ds.c1?.h) || 0));
+      db.data.stats.circle1.attempts = clamp(db.data.stats.circle1.attempts - (Number(ds.c1?.a) || 0));
+      db.data.stats.circle2.hits = clamp(db.data.stats.circle2.hits - (Number(ds.c2?.h) || 0));
+      db.data.stats.circle2.attempts = clamp(db.data.stats.circle2.attempts - (Number(ds.c2?.a) || 0));
+    });
+  } else if (Array.isArray(s.stations)) {
+    s.stations.forEach((stn) => {
+      const d = Number(stn.distance);
+      const hits = Number(stn.hits) || 0;
+      const att = Number(stn.attempts) || 0;
+      if (!isNaN(d) && d <= 10) {
+        db.data.stats.circle1.hits = clamp(db.data.stats.circle1.hits - hits);
+        db.data.stats.circle1.attempts = clamp(db.data.stats.circle1.attempts - att);
+      } else {
+        db.data.stats.circle2.hits = clamp(db.data.stats.circle2.hits - hits);
+        db.data.stats.circle2.attempts = clamp(db.data.stats.circle2.attempts - att);
+      }
+    });
+  }
+
+  // Eliminar la sesión
+  db.data.sessions.splice(idx, 1);
+  db.write();
+  res.redirect('/sessions');
 });

@@ -1,0 +1,43 @@
+extends ../layout
+
+block content
+  .home
+    .header
+      .left
+        h1 Sesiones
+      .right
+        if typeof sessionsCount !== 'undefined'
+          .pill #{sessionsCount}
+    if Array.isArray(sessions) && sessions.length
+      .list
+        each s in sessions
+          - const totalA = (s.stations||[]).reduce((a,x)=>a+(x.attempts||0),0)
+          - const totalH = (s.stations||[]).reduce((a,x)=>a+(x.hits||0),0)
+          - const p = totalA ? Math.round((totalH/totalA)*100) : 0
+          .item
+            .left
+              .title= new Date(s.date).toLocaleDateString()
+              .meta= s.routineName ? s.routineName : (s.routineId ? 'Rutina' : (s.challengeId ? 'Challenge' : 'Sesión'))
+            .right
+              .pill #{p}%
+              form(method="post" action=`/sessions/${s.id}/delete` onsubmit="return confirm('¿Seguro que deseas eliminar esta sesión?');")
+                button.delete(type="submit" aria-label="Eliminar")
+                  i.fa-solid.fa-trash
+    else
+      .empty No hay sesiones registradas.
+
+    .bottom-nav
+      a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(class=activeTab==='discs' ? 'active' : '', href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(class=activeTab==='routines' ? 'active' : '', href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
+        i.fa-solid.fa-user
+        span Tú

@@ -4,7 +4,7 @@ block content
   .home
     .header
       .left
-        h1 PuttLab
+        img.brand(src="/images/PuttLab2.svg" alt="PuttLab")
       .right
         if user && user.avatarUrl
           img.avatar(src=user.avatarUrl alt="avatar")
@@ -35,16 +35,20 @@ block content
     .kpis
       .kpi
         .label C1 %
-        .value #{(kpis && typeof kpis.c1 !== 'undefined') ? kpis.c1 : 0}%
+        .donut(style=`--p:${(kpis && typeof kpis.c1 !== 'undefined') ? kpis.c1 : 0}; --donut-color:#18b2c3;`)
+          span.donut-value #{(kpis && typeof kpis.c1 !== 'undefined') ? kpis.c1 : 0}%
       .kpi
         .label C2 %
-        .value #{(kpis && typeof kpis.c2 !== 'undefined') ? kpis.c2 : 0}%
+        .donut(style=`--p:${(kpis && typeof kpis.c2 !== 'undefined') ? kpis.c2 : 0}; --donut-color:#18b2c3;`)
+          span.donut-value #{(kpis && typeof kpis.c2 !== 'undefined') ? kpis.c2 : 0}%
       .kpi
         .label Sesiones
-        .value #{(kpis && typeof kpis.sessionsCount !== 'undefined') ? kpis.sessionsCount : 0}
+        .value.sessions-count #{(kpis && typeof kpis.sessionsCount !== 'undefined') ? kpis.sessionsCount : 0}
 
     .section
-      .h2 Últimas sesiones
+      .section-header
+        .h2 Últimas sesiones
+        a.see-all(href='/sessions') Ver todas
       if Array.isArray(sessions) && sessions.length
         .list
           each s in sessions
@@ -54,11 +58,28 @@ block content
             .item
               .left
                 .title= new Date(s.date).toLocaleDateString()
-                .meta= s.routineId ? 'Rutina' : (s.challengeId ? 'Challenge' : 'Sesión')
+                .meta= s.routineName ? s.routineName : (s.routineId ? 'Rutina' : (s.challengeId ? 'Challenge' : 'Sesión'))
               .right
                 .pill #{p}%
       else
         .empty No hay sesiones todavía.
+
+    // Modal: Añadir a pantalla de inicio
+    .modal-overlay#installModal(aria-hidden="true")
+      .modal(role="dialog" aria-modal="true" aria-labelledby="installTitle")
+        button.modal-close(type="button" aria-label="Cerrar")
+          i.fa-solid.fa-xmark
+        .modal-hero
+          img(src="/images/ejemplo-inicio.jpg" alt="Ejemplo añadir a pantalla de inicio")
+        .modal-body
+          h2#installTitle ¡Guarda un acceso directo a PuttLab en tu pantalla de inicio para acceder rápidamente!
+          p
+            | Toca 
+            i.fa-solid.fa-share-from-square
+            |  en la barra de herramientas
+          p
+            | Selecciona Añadir a la pantalla de inicio 
+            i.fa-solid.fa-square-plus
 
     // Barra inferior
     .bottom-nav
@@ -76,3 +97,22 @@ block content
       a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
         i.fa-solid.fa-user
         span Tú
+block scripts
+  script.
+    (function(){
+      var key = 'plInstallModalClosed';
+      var modal = document.getElementById('installModal');
+      if(!modal) return;
+      if(localStorage.getItem(key)==='1') return;
+      // Mostrar modal
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden','false');
+      var btn = modal.querySelector('.modal-close');
+      function close(){
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden','true');
+        try{ localStorage.setItem(key,'1'); }catch(e){}
+      }
+      btn && btn.addEventListener('click', close);
+      modal.addEventListener('click', function(e){ if(e.target===modal) close(); });
+    })();

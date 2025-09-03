@@ -1,0 +1,13 @@
+{
+  "name": "PuttLab",
+  "short_name": "PuttLab",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f131a",
+  "theme_color": "#0f131a",
+  "icons": [
+    { "src": "/images/favicon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/images/favicon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

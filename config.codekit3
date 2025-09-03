@@ -265,6 +265,60 @@
       "oAP" : "\/public\/images\/ed6ef418738ba804f97a7159cbea322e",
       "oF" : 0
     },
+    "\/public\/images\/ejemplo-inicio.jpg" : {
+      "ft" : 16384,
+      "iS" : 81816,
+      "jF" : 0,
+      "oA" : 0,
+      "oAP" : "\/public\/images\/ejemplo-inicio.jpg",
+      "oF" : 0,
+      "oIPL" : 0,
+      "opt" : 0,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
+    },
+    "\/public\/images\/favicon.png" : {
+      "ft" : 32768,
+      "iS" : 35229,
+      "oA" : 0,
+      "oAP" : "\/public\/images\/favicon.png",
+      "oF" : 0,
+      "oIPL" : 0,
+      "opt" : 0,
+      "oT" : 1,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
+    },
+    "\/public\/images\/PuttLab1.svg" : {
+      "ft" : 2097152,
+      "miP" : 0,
+      "oA" : 2,
+      "oAP" : "\/public\/images\/PuttLab1.svg",
+      "oF" : 0,
+      "opt" : 0,
+      "plM" : 52780316221407,
+      "prP" : 0
+    },
+    "\/public\/images\/PuttLab2.svg" : {
+      "ft" : 2097152,
+      "miP" : 0,
+      "oA" : 2,
+      "oAP" : "\/public\/images\/PuttLab2.svg",
+      "oF" : 0,
+      "opt" : 0,
+      "plM" : 52780316221407,
+      "prP" : 0
+    },
+    "\/public\/manifest.webmanifest" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/public\/manifest.webmanifest",
+      "oF" : 0
+    },
     "\/README.md" : {
       "cB" : 0,
       "cS" : 0,
@@ -402,6 +456,14 @@
       "oF" : 0,
       "oS" : 1
     },
+    "\/views\/routines\/result.html" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/routines\/result.html",
+      "oF" : 0
+    },
     "\/views\/routines\/result.pug" : {
       "cB" : 0,
       "cOD" : 1,
@@ -422,6 +484,42 @@
       "oF" : 0,
       "oS" : 1
     },
+    "\/views\/sessions\/index.html" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/sessions\/index.html",
+      "oF" : 0
+    },
+    "\/views\/sessions\/index.pug" : {
+      "cB" : 0,
+      "cOD" : 1,
+      "ft" : 512,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/sessions\/index.html",
+      "oF" : 0,
+      "oS" : 1
+    },
+    "\/views\/splash.html" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/splash.html",
+      "oF" : 0
+    },
+    "\/views\/splash.pug" : {
+      "cB" : 0,
+      "cOD" : 1,
+      "ft" : 512,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/splash.html",
+      "oF" : 0,
+      "oS" : 1
+    },
     "\/views\/stats\/index.html" : {
       "cB" : 0,
       "ft" : 8192,
@@ -437,6 +535,24 @@
       "hM" : 0,
       "oA" : 0,
       "oAP" : "\/views\/stats\/index.html",
+      "oF" : 0,
+      "oS" : 1
+    },
+    "\/views\/you\/index.html" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/you\/index.html",
+      "oF" : 0
+    },
+    "\/views\/you\/index.pug" : {
+      "cB" : 0,
+      "cOD" : 1,
+      "ft" : 512,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/you\/index.html",
       "oF" : 0,
       "oS" : 1
     }

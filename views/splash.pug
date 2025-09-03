@@ -1,0 +1,9 @@
+extends layout
+
+block content
+  .splash
+    img.logo(src="/images/PuttLab1.svg" alt="PuttLab")
+
+block scripts
+  script.
+    setTimeout(function(){ window.location.replace('/'); }, 3000);

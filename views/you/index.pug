@@ -1,0 +1,53 @@
+extends ../layout
+
+block content
+  .home
+    .header
+      .left
+        h1 Tú
+      .right
+        if user && user.avatarUrl
+          img.avatar(src=user.avatarUrl alt="avatar")
+    .saludo
+      .greet #{(user && user.name) ? user.name : 'Jugador'}
+      .subtle Tu perfil y estadísticas
+
+    .kpis
+      .kpi
+        .label Total %
+        .donut(style=`--p:${(kpis && typeof kpis.total !== 'undefined') ? kpis.total : 0}; --donut-color:#18b2c3;`)
+          span.donut-value #{(kpis && typeof kpis.total !== 'undefined') ? kpis.total : 0}%
+      .kpi
+        .label C1 %
+        .donut(style=`--p:${(kpis && typeof kpis.c1 !== 'undefined') ? kpis.c1 : 0}; --donut-color:#18b2c3;`)
+          span.donut-value #{(kpis && typeof kpis.c1 !== 'undefined') ? kpis.c1 : 0}%
+      .kpi
+        .label C2 %
+        .donut(style=`--p:${(kpis && typeof kpis.c2 !== 'undefined') ? kpis.c2 : 0}; --donut-color:#18b2c3;`)
+          span.donut-value #{(kpis && typeof kpis.c2 !== 'undefined') ? kpis.c2 : 0}%
+      .kpi
+        .label Sesiones
+        .value.kpi-number #{(kpis && typeof kpis.sessionsCount !== 'undefined') ? kpis.sessionsCount : 0}
+      .kpi
+        .label Discos
+        .value.kpi-number #{(kpis && typeof kpis.discsCount !== 'undefined') ? kpis.discsCount : 0}
+      .kpi
+        .label Racha semanal
+        .value.kpi-number #{(kpis && typeof kpis.streakWeeks !== 'undefined') ? kpis.streakWeeks : 0}
+
+    // Barra inferior
+    .bottom-nav
+      a.nav-item(class=activeTab==='home' ? 'active' : '', href="/")
+        i.fa-solid.fa-house
+        span Inicio
+      a.nav-item(class=activeTab==='discs' ? 'active' : '', href="/discs")
+        i.fa-solid.fa-compact-disc
+        span Discos
+      a.play(href="/session" aria-label="Iniciar sesión")
+        i.fa-solid.fa-bullseye
+      a.nav-item(class=activeTab==='routines' ? 'active' : '', href="/routines")
+        i.fa-solid.fa-list-check
+        span Rutinas
+      a.nav-item(class=activeTab==='you' ? 'active' : '', href="/you")
+        i.fa-solid.fa-user
+        span Tú
