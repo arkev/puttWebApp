@@ -164,6 +164,19 @@
       "oAP" : "\/public\/images\/9bd33872a60bebc2bff1807602573bed",
       "oF" : 0
     },
+    "\/public\/images\/27f2b376-2e92-454c-b45c-d5c535886583.jpg" : {
+      "ft" : 16384,
+      "iS" : 1299077,
+      "jF" : 0,
+      "oA" : 0,
+      "oAP" : "\/public\/images\/27f2b376-2e92-454c-b45c-d5c535886583.jpg",
+      "oF" : 0,
+      "oIPL" : 0,
+      "opt" : 0,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
+    },
     "\/public\/images\/051f7c5ddec8aa9a47a76841c308b87a" : {
       "cB" : 0,
       "ft" : 8192,
@@ -179,6 +192,19 @@
       "oA" : 0,
       "oAP" : "\/public\/images\/160ff4b2bd8a6260828e8cf434c4bf64",
       "oF" : 0
+    },
+    "\/public\/images\/855ebb70-663e-4f84-b94b-90efaed1d4bf.jpeg" : {
+      "ft" : 16384,
+      "iS" : 52580,
+      "jF" : 0,
+      "oA" : 0,
+      "oAP" : "\/public\/images\/855ebb70-663e-4f84-b94b-90efaed1d4bf.jpg",
+      "oF" : 0,
+      "oIPL" : 0,
+      "opt" : 0,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
     },
     "\/public\/images\/104131b0f9a61982cb2c6fc734a5b694" : {
       "cB" : 0,
@@ -203,6 +229,19 @@
       "oA" : 0,
       "oAP" : "\/public\/images\/937692a58edeb8a91063f5993b384783",
       "oF" : 0
+    },
+    "\/public\/images\/5792625e-4165-40b7-af92-56ce9e10e3a6.jpeg" : {
+      "ft" : 16384,
+      "iS" : 26135,
+      "jF" : 0,
+      "oA" : 0,
+      "oAP" : "\/public\/images\/5792625e-4165-40b7-af92-56ce9e10e3a6.jpg",
+      "oF" : 0,
+      "oIPL" : 0,
+      "opt" : 0,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
     },
     "\/public\/images\/9904843ef73b313f1013ca7df11c0bef" : {
       "cB" : 0,
@@ -264,6 +303,19 @@
       "oA" : 0,
       "oAP" : "\/public\/images\/ed6ef418738ba804f97a7159cbea322e",
       "oF" : 0
+    },
+    "\/public\/images\/efba45f0-262f-4767-9833-06a4de969e23.jpeg" : {
+      "ft" : 16384,
+      "iS" : 74039,
+      "jF" : 0,
+      "oA" : 0,
+      "oAP" : "\/public\/images\/efba45f0-262f-4767-9833-06a4de969e23.jpg",
+      "oF" : 0,
+      "oIPL" : 0,
+      "opt" : 0,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
     },
     "\/public\/images\/ejemplo-inicio.jpg" : {
       "ft" : 16384,
@@ -359,6 +411,34 @@
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
+    },
+    "\/views\/auth\/login.html" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/auth\/login.html",
+      "oF" : 0
+    },
+    "\/views\/auth\/login.pug" : {
+      "cB" : 0,
+      "cOD" : 1,
+      "ft" : 512,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/auth\/login.html",
+      "oF" : 0,
+      "oS" : 1
+    },
+    "\/views\/auth\/register.pug" : {
+      "cB" : 0,
+      "cOD" : 1,
+      "ft" : 512,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/auth\/register.html",
+      "oF" : 0,
+      "oS" : 1
     },
     "\/views\/discs\/compare.pug" : {
       "cB" : 0,
@@ -535,6 +615,24 @@
       "hM" : 0,
       "oA" : 0,
       "oAP" : "\/views\/stats\/index.html",
+      "oF" : 0,
+      "oS" : 1
+    },
+    "\/views\/you\/edit.html" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/you\/edit.html",
+      "oF" : 0
+    },
+    "\/views\/you\/edit.pug" : {
+      "cB" : 0,
+      "cOD" : 1,
+      "ft" : 512,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/views\/you\/edit.html",
       "oF" : 0,
       "oS" : 1
     },

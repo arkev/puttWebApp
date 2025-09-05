@@ -5,6 +5,7 @@ const { Low } = require('lowdb');
 const { JSONFile } = require('lowdb/node');
 const { v4: uuidv4 } = require('uuid');
 const lessMiddleware = require('less-middleware');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,7 +24,8 @@ const defaultData = {
     circle2: { hits: 0, attempts: 0 }
   },
   discStats: {},
-  sessions: []
+  sessions: [],
+  users: []
 };
 
 const db = new Low(adapter, defaultData);
@@ -34,6 +36,7 @@ async function initDB() {
   db.data.sessions ||= [];
   db.data.stats ||= { circle1: { hits: 0, attempts: 0 }, circle2: { hits: 0, attempts: 0 } };
   db.data.discStats ||= {};
+  db.data.users ||= [];
   // Normalizar posibles valores nulos o no numéricos en stats globales
   ['circle1', 'circle2'].forEach((c) => {
     if (!db.data.stats[c]) db.data.stats[c] = { hits: 0, attempts: 0 };
@@ -51,6 +54,18 @@ async function initDB() {
     s.circle2.attempts = Number(s.circle2.attempts) || 0;
     db.data.discStats[id] = s;
   });
+
+  // Seed de usuario por defecto si no existe
+  const exists = db.data.users.find(u => u.email === 'yosoy@arkev.com');
+  if (!exists) {
+    const id = uuidv4();
+    const passwordHash = bcrypt.hashSync('Ze2ju7', 10);
+    db.data.users.push({ id, username: 'BogeyMaker', email: 'yosoy@arkev.com', passwordHash, createdAt: new Date().toISOString() });
+    // Asignar elementos sin userId al usuario por defecto
+    db.data.discs = (db.data.discs || []).map(d => d.userId ? d : { ...d, userId: id });
+    db.data.routines = (db.data.routines || []).map(r => r.userId ? r : { ...r, userId: id });
+    db.data.sessions = (db.data.sessions || []).map(s => s.userId ? s : { ...s, userId: id });
+  }
   await db.write();
 }
 
@@ -78,23 +93,104 @@ app.use(
 );
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
+app.use(express.static(path.join(__dirname, 'public'))); // manifest y otros
 
-const upload = multer({ dest: path.join(__dirname, 'public', 'images') });
+// Multer: guardar imágenes con extensión para que el navegador detecte el tipo MIME
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, 'public', 'images')),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname || '') || '';
+    cb(null, uuidv4() + ext);
+  }
+});
+const upload = multer({ storage });
 
 // User ID
 const cookieParser = require('cookie-parser');
 
 app.use(cookieParser());
+// Hydratar usuario autenticado si hay cookie
 app.use((req, res, next) => {
-  if (!req.cookies.clientId) {
-    const id = uuidv4();
-    // httpOnly:false para poder usarlo del lado cliente si te hace falta
-    res.cookie('clientId', id, { httpOnly: false, maxAge: 1000*60*60*24*365 });
-    req.clientId = id;
-  } else {
-    req.clientId = req.cookies.clientId;
+  const uid = req.cookies.uid;
+  if (uid) {
+    const user = (db.data.users || []).find(u => u.id === uid);
+    if (user) req.user = user;
   }
   next();
+});
+
+// Protección básica de rutas (excepto públicas y estáticos)
+const isPublicPath = (p) => {
+  return p === '/login' || p === '/register' || p === '/splash' || p === '/post-splash' ||
+    p === '/manifest.webmanifest' || p.startsWith('/css') || p.startsWith('/images') || p.startsWith('/favicon');
+};
+app.use((req, res, next) => {
+  if (!req.user && !isPublicPath(req.path)) {
+    return res.redirect('/login');
+  }
+  next();
+});
+
+// Auth: Login/Registro/Logout
+app.get('/login', (req, res) => {
+  if (req.user) return res.redirect('/');
+  res.render('auth/login');
+});
+
+app.post('/login', (req, res) => {
+  const { identifier, password } = req.body;
+  const users = db.data.users || [];
+  const user = users.find(u => (u.username === identifier) || (u.email === identifier));
+  if (!user || !bcrypt.compareSync(password || '', user.passwordHash || '')) {
+    return res.render('auth/login', { error: 'Usuario o contraseña inválidos.' });
+  }
+  res.cookie('uid', user.id, { httpOnly: false, maxAge: 1000*60*60*24*30 });
+  return res.redirect('/');
+});
+
+app.get('/register', (req, res) => {
+  if (req.user) return res.redirect('/');
+  res.render('auth/register');
+});
+
+const validPassword = (pwd) => /^(?=.*[A-Z])(?=.*\d).{6,}$/.test(pwd || '');
+app.post('/register', (req, res) => {
+  let { username, email, password, confirm } = req.body;
+  username = (username || '').trim();
+  email = (email || '').trim().toLowerCase();
+  if (!username || !email || !password || !confirm) {
+    return res.render('auth/register', { error: 'Completa todos los campos.', values: { username, email } });
+  }
+  if (password !== confirm) {
+    return res.render('auth/register', { error: 'Las contraseñas no coinciden.', values: { username, email } });
+  }
+  if (!validPassword(password)) {
+    return res.render('auth/register', { error: 'La contraseña no cumple los requisitos.', values: { username, email } });
+  }
+  const users = db.data.users || [];
+  if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+    return res.render('auth/register', { error: 'El nombre de usuario ya existe.', values: { username, email } });
+  }
+  if (users.find(u => (u.email || '').toLowerCase() === email)) {
+    return res.render('auth/register', { error: 'El email ya está registrado.', values: { username, email } });
+  }
+  const id = uuidv4();
+  const passwordHash = bcrypt.hashSync(password, 10);
+  db.data.users.push({ id, username, email, passwordHash, createdAt: new Date().toISOString() });
+  db.write();
+  res.cookie('uid', id, { httpOnly: false, maxAge: 1000*60*60*24*30 });
+  res.redirect('/');
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('uid');
+  res.redirect('/login');
+});
+
+// Soporta también GET para enlaces directos de cierre de sesión
+app.get('/logout', (req, res) => {
+  res.clearCookie('uid');
+  res.redirect('/login');
 });
 
 
@@ -107,22 +203,31 @@ app.get('/discs/new', (req, res) => {
 });
 
 app.get('/discs', (req, res) => {
-  const discs = (db.data.discs || []).map((d) => {
+  const userId = req.user.id;
+  // Construir stats por disco desde sesiones (modo individual)
+  const sessions = (db.data.sessions || []).filter(s => s.userId === userId && Array.isArray(s.discs));
+  const statsByDisc = {};
+  sessions.forEach(s => {
+    s.discs.forEach(ds => {
+      const id = ds.id;
+      if (!statsByDisc[id]) statsByDisc[id] = { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
+      statsByDisc[id].c1.h += Number(ds.c1?.h) || 0;
+      statsByDisc[id].c1.a += Number(ds.c1?.a) || 0;
+      statsByDisc[id].c2.h += Number(ds.c2?.h) || 0;
+      statsByDisc[id].c2.a += Number(ds.c2?.a) || 0;
+    });
+  });
+  const discs = (db.data.discs || []).filter(d => d.userId === userId).map((d) => {
     let flight = d.flight;
     if (typeof flight === 'string') {
       const [speed, glide, turn, fade] = flight.split('|');
       flight = { speed, glide, turn, fade };
     }
-    const st = db.data.discStats?.[d.id] || {
-      circle1: { hits: 0, attempts: 0 },
-      circle2: { hits: 0, attempts: 0 },
-    };
-    const c1h = st.circle1.hits || 0,
-      c1a = st.circle1.attempts || 0;
-    const c2h = st.circle2.hits || 0,
-      c2a = st.circle2.attempts || 0;
-    const th = c1h + c2h,
-      ta = c1a + c2a;
+    const st = statsByDisc[d.id] || { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
+    const c1h = st.c1.h, c1a = st.c1.a;
+    const c2h = st.c2.h, c2a = st.c2.a;
+    const th = c1h + c2h;
+    const ta = c1a + c2a;
     const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
     return {
       ...d,
@@ -140,7 +245,7 @@ app.get('/discs', (req, res) => {
 app.post('/discs/new', upload.single('image'), (req, res) => {
   const { alias, brand, model, plastic, weight, color, speed, glide, turn, fade } = req.body;
   const flight = { speed, glide, turn, fade };
-  const disc = { id: uuidv4(), alias, brand, model, plastic, weight, color, flight };
+  const disc = { id: uuidv4(), alias, brand, model, plastic, weight, color, flight, userId: req.user.id };
   if (req.file) disc.image = req.file.filename;
   db.data.discs.push(disc);
   db.write();
@@ -148,7 +253,7 @@ app.post('/discs/new', upload.single('image'), (req, res) => {
 });
 
 app.get('/discs/:id/edit', (req, res) => {
-  const disc = db.data.discs.find((d) => d.id === req.params.id);
+  const disc = db.data.discs.find((d) => d.id === req.params.id && d.userId === req.user.id);
   if (!disc) return res.redirect('/discs');
   if (typeof disc.flight === 'string') {
     const [speed, glide, turn, fade] = disc.flight.split('|');
@@ -161,7 +266,7 @@ app.get('/discs/:id/edit', (req, res) => {
 });
 
 app.post('/discs/:id/edit', upload.single('image'), (req, res) => {
-  const idx = db.data.discs.findIndex((d) => d.id === req.params.id);
+  const idx = db.data.discs.findIndex((d) => d.id === req.params.id && d.userId === req.user.id);
   if (idx === -1) return res.redirect('/discs');
   const { alias, brand, model, plastic, weight, color, speed, glide, turn, fade } = req.body;
   const flight = { speed, glide, turn, fade };
@@ -173,7 +278,7 @@ app.post('/discs/:id/edit', upload.single('image'), (req, res) => {
 });
 
 app.post('/discs/:id/delete', (req, res) => {
-  db.data.discs = db.data.discs.filter(d => d.id !== req.params.id);
+  db.data.discs = db.data.discs.filter(d => !(d.id === req.params.id && d.userId === req.user.id) );
   if (db.data.discStats) {
     delete db.data.discStats[req.params.id];
   }
@@ -209,36 +314,28 @@ app.get('/discs/compare', (req, res) => {
     return acc;
   }, {});
 
-  if (filtering) {
-    (db.data.sessions || []).forEach((s) => {
-      const d = new Date(s.date);
-      if (startDate && d < startDate) return;
-      if (endDate && d > endDate) return;
-      if (!Array.isArray(s.discs)) return;
-      s.discs.forEach((ds) => {
-        if (!statsByDisc[ds.id]) return;
-        statsByDisc[ds.id].c1.h += ds.c1.h;
-        statsByDisc[ds.id].c1.a += ds.c1.a;
-        statsByDisc[ds.id].c2.h += ds.c2.h;
-        statsByDisc[ds.id].c2.a += ds.c2.a;
-      });
+  // Derivar SIEMPRE desde sesiones del usuario
+  (db.data.sessions || []).forEach((s) => {
+    if (s.userId !== req.user.id) return;
+    if (!Array.isArray(s.discs)) return;
+    const d = new Date(s.date);
+    if (startDate && d < startDate) return;
+    if (endDate && d > endDate) return;
+    s.discs.forEach((ds) => {
+      if (!statsByDisc[ds.id]) return;
+      statsByDisc[ds.id].c1.h += Number(ds.c1?.h) || 0;
+      statsByDisc[ds.id].c1.a += Number(ds.c1?.a) || 0;
+      statsByDisc[ds.id].c2.h += Number(ds.c2?.h) || 0;
+      statsByDisc[ds.id].c2.a += Number(ds.c2?.a) || 0;
     });
-  } else {
-    ids.forEach((id) => {
-      const st = db.data.discStats?.[id];
-      if (!st) return;
-      statsByDisc[id] = {
-        c1: { h: st.circle1?.hits || 0, a: st.circle1?.attempts || 0 },
-        c2: { h: st.circle2?.hits || 0, a: st.circle2?.attempts || 0 },
-      };
-    });
-  }
+  });
   const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
   const manufacturerMap = new Map(
     (db.data.manufacturers || []).map((m) => [m.name, m.id])
   );
+  const userId = req.user.id;
   const discs = db.data.discs
-    .filter((d) => ids.includes(d.id))
+    .filter((d) => ids.includes(d.id) && d.userId === userId)
     .map((d) => {
       const st = statsByDisc[d.id] || { c1: { h: 0, a: 0 }, c2: { h: 0, a: 0 } };
       const th = st.c1.h + st.c2.h;
@@ -259,19 +356,31 @@ app.get('/discs/compare', (req, res) => {
 });
 
 app.get('/discs/:id', (req, res) => {
-  const disc = db.data.discs.find((d) => d.id === req.params.id);
+  const disc = db.data.discs.find((d) => d.id === req.params.id && d.userId === req.user.id);
   if (!disc) return res.redirect('/discs');
   if (typeof disc.flight === 'string') {
     const [speed, glide, turn, fade] = disc.flight.split('|');
     disc.flight = { speed, glide, turn, fade };
   }
-  const stats = db.data.discStats[disc.id];
+  // Recalcular stats del disco desde sesiones
+  const sessionsForUser = (db.data.sessions || []).filter(s => s.userId === req.user.id && Array.isArray(s.discs));
+  const stats = { circle1: { hits: 0, attempts: 0 }, circle2: { hits: 0, attempts: 0 } };
+  sessionsForUser.forEach(s => {
+    s.discs.forEach(ds => {
+      if (ds.id !== disc.id) return;
+      stats.circle1.hits += Number(ds.c1?.h) || 0;
+      stats.circle1.attempts += Number(ds.c1?.a) || 0;
+      stats.circle2.hits += Number(ds.c2?.h) || 0;
+      stats.circle2.attempts += Number(ds.c2?.a) || 0;
+    });
+  });
   res.render('discs/show', { disc, stats });
 });
 
 // Routines
 app.get('/routines', (req, res) => {
-  res.render('routines/index', { routines: db.data.routines, activeTab: 'routines' });
+  const routines = (db.data.routines || []).filter(r => r.userId === req.user.id);
+  res.render('routines/index', { routines, activeTab: 'routines' });
 });
 
 app.get('/routines/new', (req, res) => {
@@ -283,7 +392,7 @@ app.post('/routines/new', (req, res) => {
   let stations = req.body.stations || [];
   if (!Array.isArray(stations)) stations = [stations];
   stations = stations.map((d) => Number(d)).filter((n) => !isNaN(n) && n > 0);
-  const routine = { id: uuidv4(), name, stations, userId: req.clientId };
+  const routine = { id: uuidv4(), name, stations, userId: req.user.id };
   db.data.routines.push(routine);
   db.write();
   res.redirect('/routines');
@@ -291,13 +400,13 @@ app.post('/routines/new', (req, res) => {
 
 
 app.get('/routines/:id/edit', (req, res) => {
-  const routine = db.data.routines.find(r => r.id === req.params.id);
+  const routine = db.data.routines.find(r => r.id === req.params.id && r.userId === req.user.id);
   if (!routine) return res.redirect('/routines');
   res.render('routines/new', { routine, activeTab: 'routines' });
 });
 
 app.post('/routines/:id/edit', (req, res) => {
-  const idx = db.data.routines.findIndex(r => r.id === req.params.id);
+  const idx = db.data.routines.findIndex(r => r.id === req.params.id && r.userId === req.user.id);
   if (idx === -1) return res.redirect('/routines');
   const { name } = req.body;
   let stations = req.body.stations || [];
@@ -309,29 +418,29 @@ app.post('/routines/:id/edit', (req, res) => {
 });
 
 app.post('/routines/:id/delete', (req, res) => {
-  db.data.routines = db.data.routines.filter(r => r.id !== req.params.id);
+  db.data.routines = db.data.routines.filter(r => !(r.id === req.params.id && r.userId === req.user.id));
   db.write();
   res.redirect('/routines');
 });
 
 app.get('/routines/:id/start', (req, res) => {
-  const routine = db.data.routines.find((r) => r.id === req.params.id);
+  const routine = db.data.routines.find((r) => r.id === req.params.id && r.userId === req.user.id);
   if (!routine) return res.redirect('/routines');
   const mode = req.query.mode;
-  let discs = db.data.discs;
+  let discs = (db.data.discs || []).filter(d => d.userId === req.user.id);
   const discIds = req.query.discIds;
   const totalDiscs = Number(req.query.totalDiscs) || 0;
   if (mode === 'individual' && discIds) {
     const ids = Array.isArray(discIds) ? discIds : [discIds];
     discs = ids
-      .map(id => db.data.discs.find(d => d.id === id))
+      .map(id => db.data.discs.find(d => d.id === id && d.userId === req.user.id))
       .filter(Boolean);
   }
   res.render('routines/start', { routine, mode, discs, totalDiscs, activeTab: 'routines' });
 });
 
 app.post('/routines/:id/complete', (req, res) => {
-  const routine = db.data.routines.find((r) => r.id === req.params.id);
+  const routine = db.data.routines.find((r) => r.id === req.params.id && r.userId === req.user.id);
   if (!routine) return res.redirect('/routines');
   const mode = req.query.mode;
   let repeatUrl = `/routines/${routine.id}/start?mode=${mode}`;
@@ -397,7 +506,7 @@ app.post('/routines/:id/complete', (req, res) => {
   }
   const sessionData = {
     id: uuidv4(),
-    userId: req.clientId,
+    userId: req.user.id,
     routineId: routine.id,
     mode,
     date: new Date().toISOString(),
@@ -427,14 +536,14 @@ app.get('/', (req, res) => {
   if (!req.cookies.seenSplash) {
     return res.redirect('/splash');
   }
-  const userId = req.clientId || 'local';
+  const userId = req.user.id;
   const allRoutines = db.data.routines || [];
   const routines = allRoutines.filter(r => r.userId === userId);
   const allSessions = (db.data.sessions || []).filter(s => s.userId === userId);
   const sessions = allSessions.slice(-5).reverse();
 
-  // Mapa rutinaId -> nombre para etiquetar sesiones
-  const routineById = new Map((allRoutines || []).map(r => [r.id, r]));
+  // Mapa rutinaId -> nombre para etiquetar sesiones (solo del usuario)
+  const routineById = new Map((routines || []).map(r => [r.id, r]));
   const sessionsView = sessions.map(s => ({
     ...s,
     routineName: s.routineId ? (routineById.get(s.routineId)?.name || 'Rutina') : undefined,
@@ -443,21 +552,39 @@ app.get('/', (req, res) => {
   let lastRoutine = null;
   if (allSessions.length) {
     const last = allSessions[allSessions.length - 1];
-    lastRoutine = allRoutines.find(r => r.id === last.routineId) || null;
+    lastRoutine = routines.find(r => r.id === last.routineId) || null;
   } else {
-    lastRoutine = routines[routines.length - 1] || allRoutines[allRoutines.length - 1] || null;
+    lastRoutine = routines[routines.length - 1] || null; // no usar rutinas de otros usuarios
   }
 
-  const c1 = db.data.stats?.circle1 || { hits: 0, attempts: 0 };
-  const c2 = db.data.stats?.circle2 || { hits: 0, attempts: 0 };
+  // KPIs por usuario (no globales)
   const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
+  let c1h = 0, c1a = 0, c2h = 0, c2a = 0;
+  allSessions.forEach((s) => {
+    if (s.mode === 'individual' && Array.isArray(s.discs)) {
+      s.discs.forEach((ds) => {
+        c1h += Number(ds.c1?.h) || 0;
+        c1a += Number(ds.c1?.a) || 0;
+        c2h += Number(ds.c2?.h) || 0;
+        c2a += Number(ds.c2?.a) || 0;
+      });
+    } else if (Array.isArray(s.stations)) {
+      s.stations.forEach((st) => {
+        const d = Number(st.distance);
+        const hits = Number(st.hits) || 0;
+        const att = Number(st.attempts) || 0;
+        if (!isNaN(d) && d <= 10) { c1h += hits; c1a += att; }
+        else { c2h += hits; c2a += att; }
+      });
+    }
+  });
 
   res.render('index', {
-    user: { name: 'Kev', avatarUrl: '/images/avatar.png' },
+    user: { name: req.user.username, avatarUrl: req.user.avatar ? ('/images/' + req.user.avatar) : '/images/avatar.png' },
     lastRoutine,
     kpis: {
-      c1: pct(c1.hits, c1.attempts),
-      c2: pct(c2.hits, c2.attempts),
+      c1: pct(c1h, c1a),
+      c2: pct(c2h, c2a),
       sessionsCount: allSessions.length,
     },
     sessions: sessionsView,
@@ -467,7 +594,7 @@ app.get('/', (req, res) => {
 
 // Botón central: Sesión
 app.get('/session', (req, res) => {
-  const routines = db.data.routines || [];
+  const routines = (db.data.routines || []).filter(r => r.userId === req.user.id);
   const lastRoutine = routines[routines.length - 1];
   if (lastRoutine) {
     return res.redirect(`/routines/${lastRoutine.id}/start`);
@@ -475,16 +602,40 @@ app.get('/session', (req, res) => {
   return res.redirect('/routines/new');
 });
 
+// Post-splash: decide a dónde ir según autenticación
+app.get('/post-splash', (req, res) => {
+  if (req.user) return res.redirect('/');
+  return res.redirect('/login');
+});
+
 // Tú (perfil)
 app.get('/you', (req, res) => {
-  const userId = req.clientId || 'local';
+  const userId = req.user.id;
   const allSessions = (db.data.sessions || []).filter(s => s.userId === userId);
-  const discsCount = (db.data.discs || []).length;
-  const c1 = db.data.stats?.circle1 || { hits: 0, attempts: 0 };
-  const c2 = db.data.stats?.circle2 || { hits: 0, attempts: 0 };
+  const discsCount = (db.data.discs || []).filter(d => d.userId === userId).length;
   const pct = (h, a) => (a ? Math.round((h / a) * 100) : 0);
-  const totalH = (Number(c1.hits) || 0) + (Number(c2.hits) || 0);
-  const totalA = (Number(c1.attempts) || 0) + (Number(c2.attempts) || 0);
+  // Agregar C1/C2 por usuario a partir de sus sesiones
+  let c1h = 0, c1a = 0, c2h = 0, c2a = 0;
+  allSessions.forEach((s) => {
+    if (s.mode === 'individual' && Array.isArray(s.discs)) {
+      s.discs.forEach((ds) => {
+        c1h += Number(ds.c1?.h) || 0;
+        c1a += Number(ds.c1?.a) || 0;
+        c2h += Number(ds.c2?.h) || 0;
+        c2a += Number(ds.c2?.a) || 0;
+      });
+    } else if (Array.isArray(s.stations)) {
+      s.stations.forEach((st) => {
+        const d = Number(st.distance);
+        const hits = Number(st.hits) || 0;
+        const att = Number(st.attempts) || 0;
+        if (!isNaN(d) && d <= 10) { c1h += hits; c1a += att; }
+        else { c2h += hits; c2a += att; }
+      });
+    }
+  });
+  const totalH = c1h + c2h;
+  const totalA = c1a + c2a;
   // Racha actual de semanas (ISO, lunes a domingo) con al menos una sesión
   const startOfISOWeek = (d0) => {
     const d = new Date(Date.UTC(d0.getFullYear(), d0.getMonth(), d0.getDate()));
@@ -509,23 +660,88 @@ app.get('/you', (req, res) => {
   }
   const kpis = {
     total: pct(totalH, totalA),
-    c1: pct(c1.hits, c1.attempts),
-    c2: pct(c2.hits, c2.attempts),
+    c1: pct(c1h, c1a),
+    c2: pct(c2h, c2a),
     sessionsCount: allSessions.length,
     discsCount,
     streakWeeks,
   };
   res.render('you/index', {
-    user: { name: 'Kev', avatarUrl: '/images/avatar.png' },
+    user: { name: req.user.username, avatarUrl: req.user.avatar ? ('/images/' + req.user.avatar) : '/images/avatar.png' },
     kpis,
     activeTab: 'you',
   });
 });
 
+// Editar perfil
+app.get('/you/edit', (req, res) => {
+  const u = req.user;
+  res.render('you/edit', { form: { username: u.username, email: u.email }, avatar: u.avatar });
+});
+
+app.post('/you/edit', upload.single('avatar'), (req, res) => {
+  const u = req.user;
+  const { username, email, password, confirm } = req.body;
+  const users = db.data.users || [];
+  // Validaciones básicas
+  if (!username || !email) {
+    return res.render('you/edit', { error: 'Usuario y email son obligatorios.', form: { username, email }, avatar: u.avatar });
+  }
+  const takenUser = users.find(x => x.id !== u.id && x.username.toLowerCase() === String(username).toLowerCase());
+  if (takenUser) return res.render('you/edit', { error: 'Ese nombre de usuario ya está en uso.', form: { username, email }, avatar: u.avatar });
+  const takenEmail = users.find(x => x.id !== u.id && (x.email || '').toLowerCase() === String(email).toLowerCase());
+  if (takenEmail) return res.render('you/edit', { error: 'Ese email ya está en uso.', form: { username, email }, avatar: u.avatar });
+  // Actualizar
+  u.username = username.trim();
+  u.email = String(email).trim().toLowerCase();
+  if (req.file) {
+    u.avatar = req.file.filename;
+  }
+  if (password) {
+    if (password !== confirm) {
+      return res.render('you/edit', { error: 'Las contraseñas no coinciden.', form: { username, email }, avatar: u.avatar });
+    }
+    if (!validPassword(password)) {
+      return res.render('you/edit', { error: 'La contraseña no cumple los requisitos.', form: { username, email }, avatar: u.avatar });
+    }
+    u.passwordHash = bcrypt.hashSync(password, 10);
+  }
+  db.write();
+  res.redirect('/you');
+});
+
+// Reiniciar/recalcular estadísticas de discos del usuario desde sus sesiones
+app.post('/you/reset-disc-stats', (req, res) => {
+  const userId = req.user.id;
+  const discs = (db.data.discs || []).filter(d => d.userId === userId);
+  db.data.discStats = db.data.discStats || {};
+  // reset a cero
+  discs.forEach(d => {
+    db.data.discStats[d.id] = {
+      circle1: { hits: 0, attempts: 0 },
+      circle2: { hits: 0, attempts: 0 },
+    };
+  });
+  // reconstruir desde sesiones del usuario (modo individual)
+  const sessions = (db.data.sessions || []).filter(s => s.userId === userId && Array.isArray(s.discs));
+  sessions.forEach((s) => {
+    s.discs.forEach((ds) => {
+      const st = db.data.discStats[ds.id];
+      if (!st) return; // por si el disco fue borrado
+      st.circle1.hits += Number(ds.c1?.h) || 0;
+      st.circle1.attempts += Number(ds.c1?.a) || 0;
+      st.circle2.hits += Number(ds.c2?.h) || 0;
+      st.circle2.attempts += Number(ds.c2?.a) || 0;
+    });
+  });
+  db.write();
+  res.redirect('/discs');
+});
+
 // Sesiones - listado completo
 app.get('/sessions', (req, res) => {
-  const userId = req.clientId || 'local';
-  const allRoutines = db.data.routines || [];
+  const userId = req.user.id;
+  const allRoutines = (db.data.routines || []).filter(r => r.userId === userId);
   const routineById = new Map(allRoutines.map(r => [r.id, r]));
   const allSessions = (db.data.sessions || [])
     .filter(s => s.userId === userId)
@@ -540,7 +756,7 @@ app.get('/sessions', (req, res) => {
 
 // Eliminar sesión (con rollback de stats)
 app.post('/sessions/:id/delete', (req, res) => {
-  const idx = (db.data.sessions || []).findIndex(s => s.id === req.params.id);
+  const idx = (db.data.sessions || []).findIndex(s => s.id === req.params.id && s.userId === req.user.id);
   if (idx === -1) return res.redirect('/sessions');
   const s = db.data.sessions[idx];
 

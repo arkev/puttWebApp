@@ -7,7 +7,8 @@ block content
         img.brand(src="/images/PuttLab2.svg" alt="PuttLab")
       .right
         if user && user.avatarUrl
-          img.avatar(src=user.avatarUrl alt="avatar")
+          a(href="/you" aria-label="Ir a Tú")
+            img.avatar(src=user.avatarUrl alt="avatar")
       .saludo
         .greet Hola, #{(user && user.name) ? user.name : 'Jugador'}
         .subtle Tu práctica te espera

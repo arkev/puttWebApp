@@ -9,6 +9,7 @@
     "seed:mfr": "node scripts/seed_manufacturers.js"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "express": "^4.18.2",
     "less-middleware": "^3.0.0",

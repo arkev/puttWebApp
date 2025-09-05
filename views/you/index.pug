@@ -7,7 +7,8 @@ block content
         h1 Tú
       .right
         if user && user.avatarUrl
-          img.avatar(src=user.avatarUrl alt="avatar")
+          a(href="/you" aria-label="Ir a Tú")
+            img.avatar(src=user.avatarUrl alt="avatar")
     .saludo
       .greet #{(user && user.name) ? user.name : 'Jugador'}
       .subtle Tu perfil y estadísticas
@@ -32,8 +33,13 @@ block content
         .label Discos
         .value.kpi-number #{(kpis && typeof kpis.discsCount !== 'undefined') ? kpis.discsCount : 0}
       .kpi
-        .label Racha semanal
+        .label Racha
         .value.kpi-number #{(kpis && typeof kpis.streakWeeks !== 'undefined') ? kpis.streakWeeks : 0}
+
+    .actions
+      a.btn-primary(href="/you/edit")
+        i.fa-solid.fa-user-pen
+        |  Editar perfil
 
     // Barra inferior
     .bottom-nav

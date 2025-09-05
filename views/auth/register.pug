@@ -1,0 +1,58 @@
+extends ../layout
+
+block content
+  .auth
+    .card-auth
+      .header-auth
+        img.brand(src="/images/PuttLab2.svg" alt="PuttLab")
+        h1 Crear cuenta
+        if error
+          .auth-error #{error}
+      form(method="post" action="/register")
+        .group
+          label(for="username") Usuario
+          input(type="text" id="username" name="username" required value=(values && values.username) placeholder="Tu nombre de usuario")
+        .group
+          label(for="email") Email
+          input(type="email" id="email" name="email" required value=(values && values.email) placeholder="correo@ejemplo.com")
+        .group
+          label(for="password") Contraseña
+          input(type="password" id="password" name="password" required minlength="6")
+        .group
+          label(for="confirm") Confirmar contraseña
+          input(type="password" id="confirm" name="confirm" required minlength="6")
+        .checklist
+          .item(data-rule="len") Mínimo 6 caracteres
+          .item(data-rule="upper") Al menos 1 mayúscula
+          .item(data-rule="num") Al menos 1 número
+        .actions
+          button.btn#btnRegister(type="submit" disabled) Crear cuenta
+      .foot-auth
+        span ¿Ya tienes cuenta?
+        a(href="/login") Inicia sesión
+
+block scripts
+  script.
+    (function(){
+      var pwd = document.getElementById('password');
+      var confirm = document.getElementById('confirm');
+      var btn = document.getElementById('btnRegister');
+      function validate(){
+        var v = pwd.value || '';
+        var okLen = v.length >= 6;
+        var okUpper = /[A-Z]/.test(v);
+        var okNum = /\d/.test(v);
+        var okConfirm = confirm.value && (confirm.value === v);
+        mark('len', okLen); mark('upper', okUpper); mark('num', okNum);
+        btn.disabled = !(okLen && okUpper && okNum && okConfirm);
+      }
+      function mark(rule, ok){
+        var el = document.querySelector('.checklist .item[data-rule="'+rule+'"]');
+        if(!el) return; el.classList.toggle('ok', !!ok);
+      }
+      ['input','keyup','change'].forEach(ev=>{
+        pwd.addEventListener(ev, validate);
+        confirm.addEventListener(ev, validate);
+      });
+      validate();
+    })();

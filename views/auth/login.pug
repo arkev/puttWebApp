@@ -1,0 +1,22 @@
+extends ../layout
+
+block content
+  .auth
+    .card-auth
+      .header-auth
+        img.brand(src="/images/PuttLab2.svg" alt="PuttLab")
+        h1 Iniciar sesión
+        if error
+          .auth-error #{error}
+      form(method="post" action="/login")
+        .group
+          label(for="identifier") Usuario o correo
+          input(type="text" id="identifier" name="identifier" required placeholder="tu usuario o correo@ejemplo.com")
+        .group
+          label(for="password") Contraseña
+          input(type="password" id="password" name="password" required minlength="6")
+        .actions
+          button.btn(type="submit") Entrar
+      .foot-auth
+        span ¿No tienes cuenta?
+        a(href="/register") Regístrate

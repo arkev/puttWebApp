@@ -14,7 +14,8 @@
         "fade": "0"
       },
       "image": "937692a58edeb8a91063f5993b384783",
-      "alias": "Birdie "
+      "alias": "Birdie ",
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     },
     {
       "id": "a4516ca5-a1cb-41eb-a58f-d44ddc13db38",
@@ -30,7 +31,8 @@
         "turn": "0",
         "fade": "1"
       },
-      "image": "160ff4b2bd8a6260828e8cf434c4bf64"
+      "image": "160ff4b2bd8a6260828e8cf434c4bf64",
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     },
     {
       "id": "9de2c082-2842-46b0-90d1-336b7b6d71c0",
@@ -46,7 +48,8 @@
         "turn": "0",
         "fade": "1"
       },
-      "image": "104131b0f9a61982cb2c6fc734a5b694"
+      "image": "104131b0f9a61982cb2c6fc734a5b694",
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     },
     {
       "id": "c23e7ca3-4104-481b-b0fb-87a67f281adf",
@@ -62,7 +65,8 @@
         "turn": "0",
         "fade": "0"
       },
-      "image": "3a179dafae586130511c073dd87afe6a"
+      "image": "3a179dafae586130511c073dd87afe6a",
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     },
     {
       "id": "c4a8dc54-f196-402a-bfdb-a9d08243d114",
@@ -78,7 +82,8 @@
         "turn": "0",
         "fade": "2"
       },
-      "image": "051f7c5ddec8aa9a47a76841c308b87a"
+      "image": "051f7c5ddec8aa9a47a76841c308b87a",
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     },
     {
       "id": "d5156348-ffda-4cd8-9e54-bcf39bc59ade",
@@ -94,7 +99,8 @@
         "turn": "0",
         "fade": "1"
       },
-      "image": "335896c4f3703fecf3212d9b4e01fa03"
+      "image": "335896c4f3703fecf3212d9b4e01fa03",
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     },
     {
       "id": "779cb2cc-ab2d-4ad2-9cc6-b5abf750cc7f",
@@ -110,7 +116,8 @@
         "turn": "0",
         "fade": "0"
       },
-      "image": "c84ad689f0dfe97bff7d2a5a4cc8098a"
+      "image": "c84ad689f0dfe97bff7d2a5a4cc8098a",
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     },
     {
       "id": "908e275b-1fa9-4a4c-ae74-f891e4b29c54",
@@ -126,7 +133,8 @@
         "turn": "0",
         "fade": "1"
       },
-      "image": "9904843ef73b313f1013ca7df11c0bef"
+      "image": "9904843ef73b313f1013ca7df11c0bef",
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     }
   ],
   "routines": [
@@ -137,7 +145,8 @@
         5,
         7,
         9
-      ]
+      ],
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     },
     {
       "id": "24423f7a-da54-4e01-89da-ab0ea772f3b0",
@@ -149,7 +158,8 @@
         10,
         7,
         8
-      ]
+      ],
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     },
     {
       "id": "6beb6509-1134-4f67-aecf-09cd11f63fc3",
@@ -163,12 +173,25 @@
         18
       ],
       "userId": "d5a84d68-8f45-4bc5-a2ba-064d6ab0c3ed"
+    },
+    {
+      "id": "4e469fc2-28b0-4a6f-b61c-b8ce4ab9714d",
+      "name": "C1 y C2",
+      "stations": [
+        3,
+        6,
+        9,
+        12,
+        15,
+        18
+      ],
+      "userId": "f4f3f740-59ff-4817-9760-a744007e3a26"
     }
   ],
   "stats": {
     "circle1": {
-      "hits": 29,
-      "attempts": 36
+      "hits": 38,
+      "attempts": 48
     },
     "circle2": {
       "hits": 4,
@@ -188,8 +211,8 @@
     },
     "a4516ca5-a1cb-41eb-a58f-d44ddc13db38": {
       "circle1": {
-        "hits": 5,
-        "attempts": 6
+        "hits": 10,
+        "attempts": 12
       },
       "circle2": {
         "hits": 0,
@@ -218,8 +241,8 @@
     },
     "9de2c082-2842-46b0-90d1-336b7b6d71c0": {
       "circle1": {
-        "hits": 4,
-        "attempts": 6
+        "hits": 8,
+        "attempts": 12
       },
       "circle2": {
         "hits": 0,
@@ -1217,6 +1240,54 @@
           }
         }
       ]
+    },
+    {
+      "id": "1252ac4d-35f6-476b-a60a-7ef652478a74",
+      "userId": "62e27050-9d15-4d9f-b7b3-b4c958d86b53",
+      "routineId": "bcee9e25-86f5-413a-b4b8-2e1d916ea947",
+      "mode": "individual",
+      "date": "2025-09-04T00:03:29.700Z",
+      "stations": [
+        {
+          "distance": 5,
+          "hits": 4,
+          "attempts": 4
+        },
+        {
+          "distance": 7,
+          "hits": 3,
+          "attempts": 4
+        },
+        {
+          "distance": 9,
+          "hits": 2,
+          "attempts": 4
+        }
+      ],
+      "discs": [
+        {
+          "id": "a4516ca5-a1cb-41eb-a58f-d44ddc13db38",
+          "c1": {
+            "h": 5,
+            "a": 6
+          },
+          "c2": {
+            "h": 0,
+            "a": 0
+          }
+        },
+        {
+          "id": "9de2c082-2842-46b0-90d1-336b7b6d71c0",
+          "c1": {
+            "h": 4,
+            "a": 6
+          },
+          "c2": {
+            "h": 0,
+            "a": 0
+          }
+        }
+      ]
     }
   ],
   "manufacturers": [
@@ -1547,6 +1618,24 @@
     {
       "id": "wingman",
       "name": "Wingman Discs"
+    }
+  ],
+  "users": [
+    {
+      "id": "f4f3f740-59ff-4817-9760-a744007e3a26",
+      "username": "BogeyMaker",
+      "email": "yosoy@arkev.com",
+      "passwordHash": "$2a$10$gHxmkox/9dHvF0CpX1qpbOI6Ak7Fh86ruWqWgvcVMpEV835GZBzFu",
+      "createdAt": "2025-09-04T18:24:49.447Z",
+      "avatar": "5792625e-4165-40b7-af92-56ce9e10e3a6.jpeg"
+    },
+    {
+      "id": "db17a48c-c8f6-41e2-999a-ee495b221459",
+      "username": "Arkev",
+      "email": "arkev77@gmail.com",
+      "passwordHash": "$2a$10$KDL/quJ.axLqOn36dKgLzufr7gwnfVQZP5SNfSoqJpzdVchGvh8wu",
+      "createdAt": "2025-09-05T05:56:45.020Z",
+      "avatar": "efba45f0-262f-4767-9833-06a4de969e23.jpeg"
     }
   ]
 }
